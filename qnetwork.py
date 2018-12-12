@@ -4,7 +4,7 @@ import tensorflow.contrib.slim as slim
 class Qnetwork():
   def __init__(self):
     num_actions = 7
-    h_size = 512  # The size of the final convolutional layer before splitting it into Advantage and Value streams.
+    h_size = 14  # The size of the final convolutional layer before splitting it into Advantage and Value streams.
 
     # The network recieves a frame from the game, flattened into an array.
     # It then resizes it and processes it through four convolutional layers.
