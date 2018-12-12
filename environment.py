@@ -43,21 +43,11 @@ class ConnectFourEnvironment(Environment):
     self.terminated = None
     self.play_level = 100
     self.reset()
-    self.reward_rules_only(False)
-
-  def reward_rules_only(self, rules_only):
-    if rules_only:
-      self.ILLEGAL_MOVE_PENALTY = 0.0
-      self.LOSS_PENALTY = 0.0
-      self.NOT_LOSS = 0.0
-      self.DRAW_REWARD = 0.5
-      self.WIN_REWARD = 1.0
-    else:
-      self.ILLEGAL_MOVE_PENALTY = -3.1
-      self.LOSS_PENALTY = -3.0
-      self.NOT_LOSS = 0.1
-      self.DRAW_REWARD = 5.0
-      self.WIN_REWARD = 10.0
+    self.ILLEGAL_MOVE_PENALTY = -1.0
+    self.LOSS_PENALTY = -1.0
+    self.NOT_LOSS = 0.0
+    self.DRAW_REWARD = 0.0
+    self.WIN_REWARD = 1.0
 
   def set_play_level(self, level):
     self.play_level = level

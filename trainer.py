@@ -42,11 +42,15 @@ class Trainer():
     def __init__(self):
 
         # settings
+        self.play_level_training = 2
+        self.play_level_validation = 2
         self.batch_size = 32  # How many experiences to use for each training step.
         self.update_freq = 1  # How often to perform a training step.
         self.y = .99  # Discount factor on the target Q-values
-        self.startE = 1  # Starting chance of random action
+        self.startE = 0.5  # Starting chance of random action
         self.endE = 0.01  # Final chance of random action
+        self.greedy_moves = 3  # number of greedy initial moves
+        self.greedy_moves_e = 0.5 # chance of random action during greedy initial moves
         self.annealing_episodes = 1000.  # How many steps of training to reduce startE to endE.
         self.num_episodes = 50000  # How many episodes of game environment to train network with.
         self.pre_train_episodes = 1000  # How many steps of random actions before training begins.
@@ -89,14 +93,16 @@ class Trainer():
                 print('Loading Model...')
                 ckpt = tf.train.get_checkpoint_state(self.path)
                 saver.restore(sess,ckpt.model_checkpoint_path)
-            for i in range(self.num_episodes):
+            for i in range(1, self.num_episodes+1):
                 pre_train = i < self.pre_train_episodes
 
-                rGame, episodeBuffer = self.play_game(sess, env, mainQN, e, pre_train )
+                env.set_play_level(self.play_level_training)
+                rGame, episodeBuffer = self.play_game(sess, env, mainQN,
+                    e, pre_train and not self.load_model, self.greedy_moves, self.greedy_moves_e)
                 rList.append(rGame)
                 myBuffer.add(episodeBuffer.buffer)
 
-                if i > self.pre_train_episodes:
+                if not pre_train:
                     if e > self.endE:
                         e -= stepDrop
 
@@ -116,17 +122,23 @@ class Trainer():
                         updateTarget(targetOps,sess) #Update the target network toward the primary network.
 
                 #Periodically save the model.
-                if i % 10000 == 0:
-                    saver.save(sess,self.path+'/model-'+str(i)+'.ckpt')
-                    print("Saved Model")
-                if len(rList) % 1000 == 0:
-                    print(i,np.mean(rList[-1000:]), e)
+                if i % 5000 == 0:
+                    rValidation = 0.0
+                    env.set_play_level(self.play_level_validation)
+                    for _ in range(100):
+                        rGame, buf = self.play_game(sess, env, mainQN, 0.0, False, 0, 0.0)
+                        rValidation += 0.5 + 0.5 * rGame
+                    file_name = 'model-{:d}-{:.0f}.ckpt'.format(i, rValidation)
+                    saver.save(sess,self.path + '/' + file_name)
+                    print("Saved Model " + file_name)
+                if i % 1000 == 0:
+                    print(i,np.mean(rList[-500:]), e)
 
-            print("Percent of succesful episodes: " + str(sum(rList)/self.num_episodes) + "%")
+            print("Percent of succesful episodes: {:.1f} %".format(50.0 + 50.0 * (sum(rList)/self.num_episodes)))
 
             return rList
 
-    def play_game(self, sess, env, mainQN,  e, pre_train):
+    def play_game(self, sess, env, mainQN,  e, pre_train, greedy_moves, greedy_moves_e):
 
         episodeBuffer = experience_buffer()
 
@@ -139,7 +151,10 @@ class Trainer():
         while j < self.max_epLength: #If the agent takes longer than 200 moves, end the trial.
             j+=1
             #Choose an action by greedily (with e chance of random action) from the Q-network
-            if np.random.rand(1) < e or pre_train:
+            e_mod = e
+            if j <= greedy_moves:
+                e_mod = greedy_moves_e
+            if np.random.rand(1) < e_mod or pre_train:
                 a = np.random.randint(0,env.actions-1)
             else:
                 a = sess.run(mainQN.predict,feed_dict={mainQN.scalarInput:[s]})[0]
