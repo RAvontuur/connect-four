@@ -42,6 +42,7 @@ class ConnectFourEnvironment(Environment):
     self.state = None
     self.terminated = None
     self.play_level = 100
+    self.reverted = False
     self.reset()
     self.ILLEGAL_MOVE_PENALTY = -1.0
     self.LOSS_PENALTY = -1.0
@@ -50,15 +51,34 @@ class ConnectFourEnvironment(Environment):
     self.WIN_REWARD = 1.0
 
   def set_play_level(self, level):
+    # -3: inverts state
+    # -2: inverts state + pause
+    # -1: manual play mode
+    #  0: random play
+    #  1: makes 4 if possible, otherwise random play
+    #  2: makes 4 and prevents 4 if possible, otherwise random
     self.play_level = level
 
   def reset(self):
     self.terminated = False
+    self.reverted = False
     self.state = [np.zeros(shape=(7, 6, 2), dtype=np.float32)]
 
     # Randomize who goes first
     if random.randint(0, 1) == 1:
       self.make_O_action()
+
+  def who_is_now(self):
+      if self.reverted:
+          if self.play_level == -1:
+            return 'I'
+          else:
+            return 'TRAINER'
+      else:
+          if self.play_level == -1:
+              return 'YOU'
+          else:
+              return 'ENV'
 
   def step(self, action_X):
     self.state = copy.deepcopy(self.state)
@@ -67,7 +87,7 @@ class ConnectFourEnvironment(Environment):
     if not np.all(self.state[0][action_X][5] == ConnectFourEnvironment.EMPTY):
       self.terminated = True
       if self.play_level in [-1, -2]:
-            print("YOU LOST ILLEGAL MOVE!")
+            print(self.who_is_now() + " LOST ILLEGAL MOVE!")
             print(self.display())
       return self.ILLEGAL_MOVE_PENALTY
 
@@ -77,14 +97,14 @@ class ConnectFourEnvironment(Environment):
     if self.check_winner(ConnectFourEnvironment.X, action_X):
       self.terminated = True
       if self.play_level in [-1, -2]:
-            print("YOU LOST!")
+            print(self.who_is_now() + " LOST!")
             print(self.display())
       return self.WIN_REWARD
 
     if self.game_over():
       self.terminated = True
       if self.play_level in [-1, -2]:
-            print("A DRAW")
+            print("A DRAW, " + self.who_is_now())
             print(self.display())    
       return self.DRAW_REWARD
     
@@ -100,8 +120,8 @@ class ConnectFourEnvironment(Environment):
     # Did O Win
     if self.check_winner(ConnectFourEnvironment.O, action_O):
       self.terminated = True
-      if self.play_level == -1:
-            print("YOU WON!")
+      if self.play_level in [-1, -2]:
+            print(self.who_is_now() + " WON!")
             print(self.display())
       return self.LOSS_PENALTY
 
@@ -272,6 +292,7 @@ class ConnectFourEnvironment(Environment):
     return False
 
   def invert_state(self):
+     self.reverted = not self.reverted
      for row in range(6):
       for col in range(7):
         if np.all(self.state[0][col][row] == ConnectFourEnvironment.X):
@@ -288,13 +309,20 @@ class ConnectFourEnvironment(Environment):
   def display(self):
     state = self.state[0]
     s = ""
+    x = "X"
+    o = "O"
+    if self.reverted:
+        x = "O"
+        o = "X"
+
     for row in range(6):
       for col in range(7):
         if np.all(state[col][5-row] == ConnectFourEnvironment.EMPTY):
           s += "_"
         if np.all(state[col][5-row] == ConnectFourEnvironment.X):
-          s += "X"
+          s += x
         if np.all(state[col][5-row] == ConnectFourEnvironment.O):
-          s += "O"
+          s += o
       s += "\n"
+    s += self.who_is_now() + "\n"
     return s

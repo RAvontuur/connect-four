@@ -158,7 +158,19 @@ class Trainer():
                 a = np.random.randint(0,env.actions-1)
             else:
                 a = sess.run(mainQN.predict,feed_dict={mainQN.scalarInput:[s]})[0]
+            assert env.reverted == False
             r = env.step(a)
+            if env.play_level <= -2:
+                if not env.terminated:
+                    s_opponent = processState(env.state)
+                    a_opponent = sess.run(mainQN.predict,feed_dict={mainQN.scalarInput:[s_opponent]})[0]
+                    r = env.step(a_opponent)
+                    if env.terminated:
+                        # termination does not invert
+                        env.invert_state()
+                        r = env.invert_reward(r)
+
+            assert env.reverted == False
             s1 = processState(env.state)
             d = env.terminated
             episodeBuffer.add(np.reshape(np.array([s,a,r,s1,d]),[1,5])) #Save the experience to our episode buffer.
