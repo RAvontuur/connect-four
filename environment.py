@@ -43,12 +43,13 @@ class ConnectFourEnvironment(Environment):
         super(ConnectFourEnvironment, self).__init__([(7, 6, 2)], 7)
         self.actions = 7
         self.play_level = 100
-        self.reset()
         self.ILLEGAL_MOVE_PENALTY = -1.0
         self.LOSS_PENALTY = -1.0
         self.NOT_LOSS = 0.0
         self.DRAW_REWARD = 0.0
         self.WIN_REWARD = 1.0
+        self._game_result = None
+        self.reset()
 
     def __str__(self):
         return self.display()
@@ -61,11 +62,25 @@ class ConnectFourEnvironment(Environment):
 
     def move(self, action):
         next_env = copy.deepcopy(self)
-        next_env.step(action)
+        reward = next_env.step(action)
+        if reward > 0:
+            result = 1
+        elif reward < 0:
+            result = -1
+        else:
+            result = 0
+
+        if next_env.terminated:
+            if next_env.reverted:
+                next_env._game_result = -result
+            else:
+                next_env._game_result = result
+        else:
+            next_env._game_result = None
         return next_env
 
     def get_legal_actions(self):
-        return [0,1,2,3,4,5,6]
+        return [0, 1, 2, 3, 4, 5, 6]
 
     def set_play_level(self, level):
         # -3: inverts state
@@ -133,8 +148,16 @@ class ConnectFourEnvironment(Environment):
                 input("Press key")
             return self.NOT_LOSS
 
-        action_O = self.make_O_action()
+        return self.make_O_action()
 
+    def invert_reward(self, r):
+        if r == self.LOSS_PENALTY:
+            return self.WIN_REWARD
+        if r == self.WIN_REWARD:
+            return self.LOSS_PENALTY
+        return r
+
+    def validate_O_action(self, action_O):
         # Did O Win
         if self.check_winner(ConnectFourEnvironment.O, action_O):
             self.terminated = True
@@ -149,13 +172,6 @@ class ConnectFourEnvironment(Environment):
 
         return self.NOT_LOSS
 
-    def invert_reward(self, r):
-        if r == self.LOSS_PENALTY:
-            return self.WIN_REWARD
-        if r == self.WIN_REWARD:
-            return self.LOSS_PENALTY
-        return r
-
     def make_O_action(self):
 
         if self.play_level == -1:
@@ -163,7 +179,7 @@ class ConnectFourEnvironment(Environment):
             print(self.display())
             action_O = int(input("Enter action (0..6)"))
             self.apply_move(ConnectFourEnvironment.O, action_O)
-            return action_O
+            return self.validate_O_action(action_O)
 
         free_columns = []
         for col in range(7):
@@ -175,7 +191,7 @@ class ConnectFourEnvironment(Environment):
             for action_O in free_columns:
                 self.apply_move(ConnectFourEnvironment.O, action_O)
                 if self.check_winner(ConnectFourEnvironment.O, action_O):
-                    return action_O
+                    return self.validate_O_action(action_O)
                 self.cancel_move(ConnectFourEnvironment.O, action_O)
 
         if self.play_level > 1:
@@ -186,11 +202,11 @@ class ConnectFourEnvironment(Environment):
                 self.cancel_move(ConnectFourEnvironment.X, action_T)
                 if prevent_win:
                     self.apply_move(ConnectFourEnvironment.O, action_T)
-                    return action_T
+                    return self.validate_O_action(action_T)
 
         action_O = random.choice(free_columns)
         self.apply_move(ConnectFourEnvironment.O, action_O)
-        return action_O
+        return self.validate_O_action(action_O)
 
     def apply_move(self, player, action):
         for row in range(6):

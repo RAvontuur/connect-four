@@ -42,6 +42,7 @@ class MonteCarloTreeSearchNode:
             (c.q / (c.n)) + c_param * np.sqrt((2 * np.log(self.n) / (c.n)))
             for c in self.children
         ]
+        # print(choices_weights)
         return self.children[np.argmax(choices_weights)]
 
     def rollout_policy(self, possible_moves):        
@@ -86,10 +87,10 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
             possible_moves = current_rollout_state.get_legal_actions()
             action = self.rollout_policy(possible_moves)
             current_rollout_state = current_rollout_state.move(action)
-        return current_rollout_state.game_result
+        return current_rollout_state.game_result()
 
     def backpropagate(self, result):
         self._number_of_visits += 1.
-        self._results[result] += 1.
+        self._results[result] = self._results[result] + 1.
         if self.parent:
             self.parent.backpropagate(result)
