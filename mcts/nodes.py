@@ -2,9 +2,10 @@ import numpy as np
 from collections import defaultdict
 from mcts.common import TwoPlayersGameState
 
+
 class MonteCarloTreeSearchNode:
 
-    def __init__(self, state: TwoPlayersGameState, parent = None):
+    def __init__(self, state: TwoPlayersGameState, parent=None):
         self.state = state
         self.parent = parent
         self.children = []
@@ -33,20 +34,33 @@ class MonteCarloTreeSearchNode:
     def backpropagate(self, reward):
         raise NotImplemented()
 
-
     def is_fully_expanded(self):
         return len(self.untried_actions) == 0
 
-    def best_child(self, c_param = 1.4):
-        choices_weights = [
+    def choices_weights(self, c_param=1.4):
+        return [
             (c.q / (c.n)) + c_param * np.sqrt((2 * np.log(self.n) / (c.n)))
             for c in self.children
         ]
-        # print(choices_weights)
-        return self.children[np.argmax(choices_weights)]
 
-    def rollout_policy(self, possible_moves):        
+    def choices_q(self):
+        return [
+            c.q
+            for c in self.children
+        ]
+
+    def choices_n(self):
+        return [
+            c.n
+            for c in self.children
+        ]
+
+    def best_child(self, c_param=1.4):
+        return self.children[np.argmax(self.choices_weights(c_param))]
+
+    def rollout_policy(self, possible_moves):
         return possible_moves[np.random.randint(len(possible_moves))]
+
 
 class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
 
@@ -63,8 +77,8 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
 
     @property
     def q(self):
-        wins = self._results[self.parent.state.next_to_move]
-        loses = self._results[-1 * self.parent.state.next_to_move]
+        wins = self._results[-1 * self.state.next_to_move]
+        loses = self._results[self.state.next_to_move]
         return wins - loses
 
     @property
@@ -74,7 +88,7 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
     def expand(self):
         action = self.untried_actions.pop()
         next_state = self.state.move(action)
-        child_node = TwoPlayersGameMonteCarloTreeSearchNode(next_state, parent = self)
+        child_node = TwoPlayersGameMonteCarloTreeSearchNode(next_state, parent=self)
         self.children.append(child_node)
         return child_node
 

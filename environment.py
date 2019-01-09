@@ -94,7 +94,7 @@ class ConnectFourEnvironment(Environment):
     def reset(self):
         self.terminated = False
         self.reverted = False
-        self.next_to_move = 0
+        self.next_to_move = 1
         self.state = [np.zeros(shape=(7, 6, 2), dtype=np.float32)]
 
         # Randomize who goes first
@@ -115,7 +115,7 @@ class ConnectFourEnvironment(Environment):
 
     def step(self, action_X):
         self.state = copy.deepcopy(self.state)
-
+        self.next_to_move = -1
         # Illegal move -- too high stack of squares
         if not np.all(self.state[0][action_X][5] == ConnectFourEnvironment.EMPTY):
             self.terminated = True
@@ -173,7 +173,7 @@ class ConnectFourEnvironment(Environment):
         return self.NOT_LOSS
 
     def make_O_action(self):
-
+        self.next_to_move = 1
         if self.play_level == -1:
             # manual mode
             print(self.display())
@@ -326,10 +326,6 @@ class ConnectFourEnvironment(Environment):
 
     def invert_state(self):
         self.reverted = not self.reverted
-        if self.reverted:
-            self.next_to_move = 1
-        else:
-            self.next_to_move = 0
 
         for row in range(6):
             for col in range(7):
