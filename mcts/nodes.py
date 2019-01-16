@@ -77,8 +77,8 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
 
     @property
     def q(self):
-        wins = self._results[-1 * self.state.next_to_move]
-        loses = self._results[self.state.next_to_move]
+        wins = self._results[1]
+        loses = self._results[-1]
         return wins - loses
 
     @property
@@ -96,15 +96,16 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
         return self.state.is_game_over()
 
     def rollout(self):
+        player = self.state.next_to_move
         current_rollout_state = self.state
         while not current_rollout_state.is_game_over():
             possible_moves = current_rollout_state.get_legal_actions()
             action = self.rollout_policy(possible_moves)
             current_rollout_state = current_rollout_state.move(action)
-        return current_rollout_state.game_result()
+        return current_rollout_state.game_result(player)
 
     def backpropagate(self, result):
         self._number_of_visits += 1.
-        self._results[result] = self._results[result] + 1.
+        self._results[result] += 1.
         if self.parent:
-            self.parent.backpropagate(result)
+            self.parent.backpropagate(-result)

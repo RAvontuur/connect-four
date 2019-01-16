@@ -16,7 +16,7 @@ class Environment:
         else:
             self.state_dtype = state_dtype
 
-    def game_result(self):
+    def game_result(self, player):
         raise NotImplemented("Implement game_result function")
 
     def is_game_over(self):
@@ -51,8 +51,11 @@ class ConnectFourEnvironment(Environment):
     def __str__(self):
         return self.display()
 
-    def game_result(self):
-        return self.reward
+    def game_result(self, player):
+        if player == self.next_to_move:
+            return self.reward
+        else:
+            return -self.reward
 
     def is_game_over(self):
         return self.terminated
@@ -61,11 +64,8 @@ class ConnectFourEnvironment(Environment):
         return [0, 1, 2, 3, 4, 5, 6]
 
     def move(self, action):
-        self.reward = self.step(action)
-
         next = copy.deepcopy(self)
-        next.next_to_move = -next.next_to_move
-        next.reward = -next.reward
+        next.reward = next.step(action)
         return next
 
     def step(self, action):
@@ -91,6 +91,7 @@ class ConnectFourEnvironment(Environment):
             self.terminated = True
             return self.DRAW_REWARD
 
+        self.next_to_move = -self.next_to_move
         return self.NOT_LOSS
 
     def apply_move(self, player, action):

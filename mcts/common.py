@@ -4,7 +4,7 @@ class TwoPlayersGameState:
         self.state = state
         self.next_to_move = next_to_move
 
-    def game_result(self):
+    def game_result(self, player):
         raise NotImplemented("Implement game_result function")
 
     def is_game_over(self):

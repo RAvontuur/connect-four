@@ -2,10 +2,11 @@ from environment import ConnectFourEnvironment
 from player_random import Player_Random
 from player_one_ahead import Player_One_Ahead
 from player_manual import Player_Manual
+from player_montecarlo import Player_MonteCarlo
 
 env = ConnectFourEnvironment()
 
-player1 = Player_One_Ahead(1)
+player1 = Player_MonteCarlo(1)
 player2 = Player_Manual(-1)
 
 while True:
