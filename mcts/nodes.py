@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from collections import defaultdict
 from mcts.common import TwoPlayersGameState
 
@@ -9,6 +10,7 @@ class MonteCarloTreeSearchNode:
         self.state = state
         self.parent = parent
         self.children = []
+        self.tried_actions = []
 
     @property
     def untried_actions(self):
@@ -73,6 +75,7 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
     def untried_actions(self):
         if not hasattr(self, '_untried_actions'):
             self._untried_actions = self.state.get_legal_actions()
+            random.shuffle(self._untried_actions)
         return self._untried_actions
 
     @property
@@ -86,10 +89,11 @@ class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
         return self._number_of_visits
 
     def expand(self):
-        action = self.untried_actions.pop()
+        action = self.untried_actions.pop(0)
         next_state = self.state.move(action)
         child_node = TwoPlayersGameMonteCarloTreeSearchNode(next_state, parent=self)
         self.children.append(child_node)
+        self.tried_actions.append(action)
         return child_node
 
     def is_terminal_node(self):

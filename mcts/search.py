@@ -3,13 +3,12 @@ from mcts.nodes import MonteCarloTreeSearchNode
 class MonteCarloTreeSearch:
 
     def __init__(self, node: MonteCarloTreeSearchNode):
-        print("init MonteCarloTreeSearch")
         self.root = node
 
 
     def best_action(self, simulations_number):
         for i in range(0, simulations_number):
-            if i % 100 == 0:
+            if i+1 % 10000 == 0:
                 print("simulation " + str(i))
             v = self.tree_policy()
             reward = v.rollout()

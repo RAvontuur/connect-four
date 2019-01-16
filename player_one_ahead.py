@@ -4,9 +4,9 @@ from environment import ConnectFourEnvironment
 
 class Player_One_Ahead():
 
-    def __init__(self,  player):
+    def __init__(self,  player, play_level=2):
         self.player = player
-        self.play_level = 2
+        self.play_level = play_level
 
     def play(self, env):
         assert(env.next_to_move == self.player)
@@ -17,12 +17,15 @@ class Player_One_Ahead():
             if np.all(env.state[0][col][5] == ConnectFourEnvironment.EMPTY):
                 free_columns.append(col)
 
+        random.shuffle(free_columns)
+
         if self.play_level > 0:
             # try to find winning move
             for action1 in free_columns:
                 env1 = env.move(action1)
                 if env1.is_game_over():
                     if env1.game_result(env.next_to_move) > 0:
+                        print("lets win")
                         return env.move(action1)
 
                 if self.play_level > 1:
@@ -36,8 +39,9 @@ class Player_One_Ahead():
                                 break
 
                     if not opponent_can_win:
+                        print("opponent can not win")
                         return env.move(action1)
 
-
+        print("random move")
         action = random.choice(free_columns)
         return env.move(action)

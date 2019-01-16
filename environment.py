@@ -224,7 +224,7 @@ class ConnectFourEnvironment(Environment):
             else:
                 s = "Game ended in a DRAW"
             if self.illegal_action:
-                s += " after illegal move previous player"
+                s += " after illegal move"
         else:
             s += " is playing now"
 
