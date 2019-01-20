@@ -1,6 +1,6 @@
 from environment import ConnectFourEnvironment
 from player_montecarlo import Player_MonteCarlo
-
+from player_neural import Player_Neural
 
 number_of_plays = 100
 show_play = False
@@ -14,9 +14,10 @@ while i <= number_of_plays:
     print("play " + str(i) + " starts")
     env = ConnectFourEnvironment()
 
-    player1 = Player_MonteCarlo(1, 500)
+    player2 = Player_Neural(-1)
+    # player1 = Player_MonteCarlo(1, 500)
     # player1 = Player_Random(1)
-    player2 = Player_MonteCarlo(-1, 750)
+    player1 = Player_MonteCarlo(1, 1000)
     # player2 = Player_One_Ahead(-1, 2)
 
     while True:
