@@ -3,6 +3,9 @@ import random
 import tensorflow as tf
 import os
 from qnetwork import Qnetwork
+from environment import ConnectFourEnvironment
+from player_montecarlo import Player_MonteCarlo
+from player_one_ahead import Player_One_Ahead
 
 
 # Experience Replay
@@ -42,8 +45,9 @@ class Trainer():
     def __init__(self):
 
         # settings
-        self.play_level_training = 2
-        self.play_level_validation = 2
+        # self.opponent_training = Player_One_Ahead()
+        self.opponent_training = Player_MonteCarlo(100)
+        self.opponent_validation = Player_MonteCarlo(100)
         self.batch_size = 32  # How many experiences to use for each training step.
         self.update_freq = 1  # How often to perform a training step.
         self.y = .99  # Discount factor on the target Q-values
@@ -64,7 +68,7 @@ class Trainer():
             os.makedirs(self.path)
 
 
-    def train(self, env):
+    def train(self):
 
         tf.reset_default_graph()
         mainQN = Qnetwork()
@@ -96,8 +100,7 @@ class Trainer():
             for i in range(1, self.num_episodes+1):
                 pre_train = i < self.pre_train_episodes
 
-                env.set_play_level(self.play_level_training)
-                rGame, episodeBuffer = self.play_game(sess, env, mainQN,
+                rGame, episodeBuffer = self.play_game(sess, mainQN,
                     e, pre_train and not self.load_model, self.greedy_moves, self.greedy_moves_e)
                 rList.append(rGame)
                 myBuffer.add(episodeBuffer.buffer)
@@ -124,26 +127,26 @@ class Trainer():
                 #Periodically save the model.
                 if i % 5000 == 0:
                     rValidation = 0.0
-                    env.set_play_level(self.play_level_validation)
                     for _ in range(100):
-                        rGame, buf = self.play_game(sess, env, mainQN, 0.0, False, 0, 0.0)
+                        rGame, buf = self.play_game(sess, mainQN, 0.0, False, 0, 0.0)
                         rValidation += 0.5 + 0.5 * rGame
                     file_name = 'model-{:d}-{:.0f}.ckpt'.format(i, rValidation)
                     saver.save(sess,self.path + '/' + file_name)
                     print("Saved Model " + file_name)
-                if i % 1000 == 0:
+                if i % 100 == 0:
                     print(i,np.mean(rList[-500:]), e)
 
             print("Percent of succesful episodes: {:.1f} %".format(50.0 + 50.0 * (sum(rList)/self.num_episodes)))
 
             return rList
 
-    def play_game(self, sess, env, mainQN,  e, pre_train, greedy_moves, greedy_moves_e):
+    def play_game(self, sess, mainQN,  e, pre_train, greedy_moves, greedy_moves_e):
 
         episodeBuffer = experience_buffer()
 
         #Reset environment and get first new observation
-        env.reset()
+        env = ConnectFourEnvironment()
+        assert(env.next_to_move == 1)
         s = processState(env.state)
         r_game = 0
         j = 0
@@ -155,22 +158,17 @@ class Trainer():
             if j <= greedy_moves:
                 e_mod = greedy_moves_e
             if np.random.rand(1) < e_mod or pre_train:
-                a = np.random.randint(0,env.actions-1)
+                a = random.choice(env.get_legal_actions())
             else:
                 a = sess.run(mainQN.predict,feed_dict={mainQN.scalarInput:[s]})[0]
-            assert env.reverted == False
-            r = env.step(a)
-            if env.play_level <= -2:
-                if not env.terminated:
-                    s_opponent = processState(env.state)
-                    a_opponent = sess.run(mainQN.predict,feed_dict={mainQN.scalarInput:[s_opponent]})[0]
-                    r = env.step(a_opponent)
-                    if env.terminated:
-                        # termination does not invert
-                        env.invert_state()
-                        r = env.invert_reward(r)
 
-            assert env.reverted == False
+            env = env.move(a)
+            r = env.game_result(1)
+
+            if not env.terminated:
+                assert(env.next_to_move == -1)
+                env = self.opponent_training.play(env)
+
             s1 = processState(env.state)
             d = env.terminated
             episodeBuffer.add(np.reshape(np.array([s,a,r,s1,d]),[1,5])) #Save the experience to our episode buffer.

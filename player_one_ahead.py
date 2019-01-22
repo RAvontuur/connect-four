@@ -23,7 +23,7 @@ class Player_One_Ahead():
                 env1 = env.move(action1)
                 if env1.is_game_over():
                     if env1.game_result(env.next_to_move) > 0:
-                        print("lets win")
+                        # print("lets win")
                         return env.move(action1)
 
                 if self.play_level > 1:
@@ -37,9 +37,9 @@ class Player_One_Ahead():
                                 break
 
                     if not opponent_can_win:
-                        print("opponent can not win")
+                        # print("opponent can not win")
                         return env.move(action1)
 
-        print("random move")
+        # print("random move")
         action = random.choice(free_columns)
         return env.move(action)

@@ -28,7 +28,7 @@ def invert_state(state):
 class Player_Neural:
 
     def __init__(self):
-        self.path = "./dqn"  # The path to load our model from.
+        path = "./dqn"  # The path to load our model from.
 
         tf.reset_default_graph()
         self.mainQN = Qnetwork()
@@ -40,7 +40,7 @@ class Player_Neural:
         self.sess = tf.Session()
         self.sess.run(init)
         print('Loading Model...')
-        ckpt = tf.train.get_checkpoint_state(self.path)
+        ckpt = tf.train.get_checkpoint_state(path)
         saver.restore(self.sess, ckpt.model_checkpoint_path)
 
     def play(self, env):
