@@ -14,22 +14,23 @@ while i <= number_of_plays:
     print("play " + str(i) + " starts")
     env = ConnectFourEnvironment()
 
-    player2 = Player_Neural(-1)
-    # player1 = Player_MonteCarlo(1, 500)
-    # player1 = Player_Random(1)
-    player1 = Player_MonteCarlo(1, 1000)
-    # player2 = Player_One_Ahead(-1, 2)
+    player2 = Player_Neural()
+    player1 = Player_MonteCarlo(500)
+    # player1 = Player_Random()
+    # player1 = Player_MonteCarlo(100)
+    # player2 = Player_One_Ahead(2)
 
     while True:
+        assert(env.next_to_move == 1)
         env = player1.play(env)
         if env.is_game_over():
             print(env)
             break
 
+        assert(env.next_to_move == -1)
         env = player2.play(env)
         if env.is_game_over():
             print(env)
-
             break
 
         if show_play:

@@ -4,12 +4,10 @@ from mcts.search import MonteCarloTreeSearch
 
 class Player_MonteCarlo:
 
-    def __init__(self, player, number_of_simulations=1000):
-        self.player = player
+    def __init__(self, number_of_simulations=1000):
         self.number_of_simulations = number_of_simulations
 
     def play(self, env):
-        assert (env.next_to_move == self.player)
         assert (env.terminated == False)
         root = TwoPlayersGameMonteCarloTreeSearchNode(state=env, parent=None)
         mcts = MonteCarloTreeSearch(root)

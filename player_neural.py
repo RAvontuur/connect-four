@@ -27,8 +27,7 @@ def invert_state(state):
 
 class Player_Neural:
 
-    def __init__(self, player):
-        self.player = player
+    def __init__(self):
         self.path = "./dqn"  # The path to load our model from.
 
         tf.reset_default_graph()
@@ -45,11 +44,10 @@ class Player_Neural:
         saver.restore(self.sess, ckpt.model_checkpoint_path)
 
     def play(self, env):
-        assert (env.next_to_move == self.player)
         assert (env.terminated == False)
 
         state = env.state
-        if self.player == -1:
+        if env.next_to_move == -1:
             state = invert_state(state)
 
         s = processState(state)

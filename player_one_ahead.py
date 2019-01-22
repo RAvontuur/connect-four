@@ -4,12 +4,10 @@ from environment import ConnectFourEnvironment
 
 class Player_One_Ahead():
 
-    def __init__(self,  player, play_level=2):
-        self.player = player
+    def __init__(self, play_level=2):
         self.play_level = play_level
 
     def play(self, env):
-        assert(env.next_to_move == self.player)
         assert(env.terminated == False)
 
         free_columns = []
