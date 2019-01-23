@@ -6,6 +6,7 @@ from qnetwork import Qnetwork
 from environment import ConnectFourEnvironment
 from player_montecarlo import Player_MonteCarlo
 from player_one_ahead import Player_One_Ahead
+from player_neural import Player_Neural
 
 
 # Experience Replay
@@ -45,9 +46,9 @@ class Trainer():
     def __init__(self):
 
         # settings
-        self.opponent_training = Player_One_Ahead()
+        self.opponent_training = None
         #self.opponent_training = Player_MonteCarlo(100)
-        self.opponent_validation = Player_MonteCarlo(100)
+        self.opponent_validation = Player_One_Ahead()
         self.batch_size = 32  # How many experiences to use for each training step.
         self.update_freq = 1  # How often to perform a training step.
         self.y = .99  # Discount factor on the target Q-values
@@ -97,6 +98,11 @@ class Trainer():
                 print('Loading Model...')
                 ckpt = tf.train.get_checkpoint_state(self.path)
                 saver.restore(sess,ckpt.model_checkpoint_path)
+
+            player_in_training = Player_Neural(sess, mainQN)
+            if self.opponent_training is None:
+                self.opponent_training = player_in_training
+
             for i in range(1, self.num_episodes+1):
                 pre_train = i < self.pre_train_episodes
 
@@ -125,10 +131,10 @@ class Trainer():
                         updateTarget(targetOps,sess) #Update the target network toward the primary network.
 
                 #Periodically save the model.
-                if i % 5000 == 0:
+                if i % 1000 == 0:
                     rValidation = 0.0
                     for _ in range(100):
-                        rGame, buf = self.play_game(sess, mainQN, 0.0, False, 0, 0.0)
+                        rGame = self.validate_play(player_in_training, self.opponent_validation)
                         rValidation += 0.5 + 0.5 * rGame
                     file_name = 'model-{:d}-{:.0f}.ckpt'.format(i, rValidation)
                     saver.save(sess,self.path + '/' + file_name)
@@ -181,4 +187,18 @@ class Trainer():
 
         return r_game, episodeBuffer
 
+    def validate_play(self, player1, player2):
+        env = ConnectFourEnvironment()
 
+        while True:
+            assert(env.next_to_move == 1)
+            env = player1.play(env)
+            if env.is_game_over():
+                break
+
+            assert(env.next_to_move == -1)
+            env = player2.play(env)
+            if env.is_game_over():
+                break
+
+        return env.game_result(1)

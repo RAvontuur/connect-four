@@ -11,15 +11,16 @@ i = 1
 result_1 = 0.
 result_2 = 0.
 
+player1 = Player_Neural()
+# player2 = Player_Neural()
+# player1 = Player_MonteCarlo(10000)
+# player1 = Player_Random()
+# player1 = Player_MonteCarlo(100)
+player2 = Player_One_Ahead(2)
+
 while i <= number_of_plays:
     print("play " + str(i) + " starts")
     env = ConnectFourEnvironment()
-
-    # player2 = Player_Neural()
-    player1 = Player_MonteCarlo(500)
-    # player1 = Player_Random()
-    # player1 = Player_MonteCarlo(100)
-    player2 = Player_One_Ahead(2)
 
     while True:
         assert(env.next_to_move == 1)

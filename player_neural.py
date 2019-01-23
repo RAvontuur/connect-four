@@ -27,21 +27,25 @@ def invert_state(state):
 
 class Player_Neural:
 
-    def __init__(self):
-        path = "./dqn"  # The path to load our model from.
+    def __init__(self, sess = None, mainQN = None):
+        if sess is None:
+            path = "./dqn"  # The path to load our model from.
 
-        tf.reset_default_graph()
-        self.mainQN = Qnetwork()
+            tf.reset_default_graph()
+            self.mainQN = Qnetwork()
 
-        init = tf.global_variables_initializer()
+            init = tf.global_variables_initializer()
 
-        saver = tf.train.Saver()
+            saver = tf.train.Saver()
 
-        self.sess = tf.Session()
-        self.sess.run(init)
-        print('Loading Model...')
-        ckpt = tf.train.get_checkpoint_state(path)
-        saver.restore(self.sess, ckpt.model_checkpoint_path)
+            self.sess = tf.Session()
+            self.sess.run(init)
+            print('Loading Model...')
+            ckpt = tf.train.get_checkpoint_state(path)
+            saver.restore(self.sess, ckpt.model_checkpoint_path)
+        else:
+            self.sess = sess
+            self.mainQN = mainQN
 
     def play(self, env):
         assert (env.terminated == False)
@@ -51,6 +55,8 @@ class Player_Neural:
             state = invert_state(state)
 
         s = processState(state)
-        action = self.sess.run(self.mainQN.predict, feed_dict={self.mainQN.scalarInput: [s]})[0]
+        q_out = self.sess.run(self.mainQN.Qout, feed_dict={self.mainQN.scalarInput: [s]})[0]
+        actions = q_out * (0.75 + 0.25 * np.random.random_sample((7,))) + 0.01 * np.random.random_sample((7,))
+        action = np.argmax(actions)
 
         return env.move(action)
