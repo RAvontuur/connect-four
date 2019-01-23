@@ -2,40 +2,19 @@ import collections
 import copy
 import numpy as np
 
-class Environment:
-
-    def __init__(self, state_shape, n_actions, state_dtype=None):
-        self.state_shape = state_shape
-        self.n_actions = n_actions
-        if state_dtype is None:
-            # Assume all arrays are float32.
-            if isinstance(state_shape[0], collections.Sequence):
-                self.state_dtype = [np.float32] * len(state_shape)
-            else:
-                self.state_dtype = np.float32
-        else:
-            self.state_dtype = state_dtype
-
-    def game_result(self, player):
-        raise NotImplemented("Implement game_result function")
-
-    def is_game_over(self):
-        raise NotImplemented("Implement is_game_over function")
-
-    def move(self, action):
-        raise NotImplemented("Implement move function")
-
-    def get_legal_actions(self):
-        raise NotImplemented("Implement get_legal_actions function")
-
-
-class ConnectFourEnvironment(Environment):
+class ConnectFourEnvironment():
     X = np.array([1.0, 0.0])
     O = np.array([0.0, 1.0])
     EMPTY = np.array([0.0, 0.0])
 
     def __init__(self):
-        super(ConnectFourEnvironment, self).__init__([(7, 6, 2)], 7)
+        state_shape = [(7, 6, 2)]
+        # Assume all arrays are float32.
+        if isinstance(state_shape[0], collections.Sequence):
+            self.state_dtype = [np.float32] * len(state_shape)
+        else:
+            self.state_dtype = np.float32
+
         self.actions = 7
         self.ILLEGAL_MOVE_PENALTY = -1
         self.LOSS_PENALTY = -1

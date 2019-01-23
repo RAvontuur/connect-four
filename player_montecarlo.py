@@ -1,6 +1,5 @@
-from mcts.nodes import *
+from mcts.nodes import MonteCarloTreeSearchNode
 from mcts.search import MonteCarloTreeSearch
-
 
 class Player_MonteCarlo:
 
@@ -9,7 +8,7 @@ class Player_MonteCarlo:
 
     def play(self, env):
         assert (env.terminated == False)
-        root = TwoPlayersGameMonteCarloTreeSearchNode(state=env, parent=None)
+        root = MonteCarloTreeSearchNode(state=env, parent=None)
         mcts = MonteCarloTreeSearch(root)
 
         # sims = int(input("Enter number of simulations"))

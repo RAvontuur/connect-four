@@ -45,8 +45,8 @@ class Trainer():
     def __init__(self):
 
         # settings
-        # self.opponent_training = Player_One_Ahead()
-        self.opponent_training = Player_MonteCarlo(100)
+        self.opponent_training = Player_One_Ahead()
+        #self.opponent_training = Player_MonteCarlo(100)
         self.opponent_validation = Player_MonteCarlo(100)
         self.batch_size = 32  # How many experiences to use for each training step.
         self.update_freq = 1  # How often to perform a training step.
