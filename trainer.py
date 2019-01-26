@@ -3,6 +3,7 @@ import random
 import tensorflow as tf
 import os
 from qnetwork import Qnetwork
+from double_q_learner import DoubleQLearner
 from environment import ConnectFourEnvironment
 from player_montecarlo import Player_MonteCarlo
 from player_one_ahead import Player_One_Ahead
@@ -28,41 +29,29 @@ class experience_buffer():
 def processState(states):
     return np.reshape(states,[7*6*2])
 
-# These functions allow us to update the parameters of our target network with those of the primary network.
-def updateTargetGraph(tfVars,tau):
-    total_vars = len(tfVars)
-    op_holder = []
-    for idx,var in enumerate(tfVars[0:total_vars//2]):
-        op_holder.append(tfVars[idx+total_vars//2].assign((var.value()*tau) + ((1-tau)*tfVars[idx+total_vars//2].value())))
-    return op_holder
-
-def updateTarget(op_holder,sess):
-    for op in op_holder:
-        sess.run(op)
-
 
 
 class Trainer():
     def __init__(self):
 
         # settings
-        self.opponent_training = None
+        # self.opponent_training = None
+        self.opponent_training = Player_One_Ahead()
         #self.opponent_training = Player_MonteCarlo(100)
         self.opponent_validation = Player_One_Ahead()
         self.batch_size = 32  # How many experiences to use for each training step.
         self.update_freq = 1  # How often to perform a training step.
-        self.y = .99  # Discount factor on the target Q-values
         self.startE = 0.5  # Starting chance of random action
         self.endE = 0.01  # Final chance of random action
         self.greedy_moves = 3  # number of greedy initial moves
         self.greedy_moves_e = 0.5 # chance of random action during greedy initial moves
         self.annealing_episodes = 1000.  # How many steps of training to reduce startE to endE.
-        self.num_episodes = 50000  # How many episodes of game environment to train network with.
+        self.num_episodes = 200000  # How many episodes of game environment to train network with.
         self.pre_train_episodes = 1000  # How many steps of random actions before training begins.
         self.max_epLength = 50  # The max allowed length of our episode.
         self.load_model = False  # Whether to load a saved model.
         self.path = "./dqn"  # The path to save our model to.
-        self.tau = 0.001  # Rate to update target network toward primary network
+
 
         #Make a path for our model to be saved in.
         if not os.path.exists(self.path):
@@ -79,10 +68,9 @@ class Trainer():
 
         saver = tf.train.Saver()
 
-        trainables = tf.trainable_variables()
-        targetOps = updateTargetGraph(trainables, self.tau)
-
         myBuffer = experience_buffer()
+
+        learner = DoubleQLearner(mainQN, targetQN)
 
         #Set the rate of random action decrease.
         e = self.startE
@@ -100,6 +88,7 @@ class Trainer():
                 saver.restore(sess,ckpt.model_checkpoint_path)
 
             player_in_training = Player_Neural(sess, mainQN)
+            player_target = Player_Neural(sess, targetQN)
             if self.opponent_training is None:
                 self.opponent_training = player_in_training
 
@@ -116,27 +105,23 @@ class Trainer():
                         e -= stepDrop
 
                     if i % (self.update_freq) == 0:
-                        trainBatch = myBuffer.sample(self.batch_size) #Get a random batch of experiences.
-                        #Below we perform the Double-DQN update to the target Q-values
-                        Q1 = sess.run(mainQN.predict,feed_dict={mainQN.scalarInput:np.vstack(trainBatch[:,3])})
-                        Q2 = sess.run(targetQN.Qout,feed_dict={targetQN.scalarInput:np.vstack(trainBatch[:,3])})
-                        end_multiplier = -(trainBatch[:,4] - 1)
-                        doubleQ = Q2[range(self.batch_size),Q1]
-                        targetQ = trainBatch[:,2] + (self.y*doubleQ * end_multiplier)
-                        #Update the network with our target values.
-                        _ = sess.run(mainQN.updateModel,
-                                     feed_dict={mainQN.scalarInput:np.vstack(trainBatch[:,0]),mainQN.targetQ:targetQ,
-                                                mainQN.actions:trainBatch[:,1]})
-
-                        updateTarget(targetOps,sess) #Update the target network toward the primary network.
+                        #Get a random batch of experiences.
+                        trainBatch = myBuffer.sample(self.batch_size)
+                        assert(len(trainBatch) == self.batch_size)
+                        learner.learn(sess, trainBatch)
 
                 #Periodically save the model.
-                if i % 1000 == 0:
+                if i % 10000 == 0:
                     rValidation = 0.0
-                    for _ in range(100):
+                    for _ in range(1000):
                         rGame = self.validate_play(player_in_training, self.opponent_validation)
                         rValidation += 0.5 + 0.5 * rGame
-                    file_name = 'model-{:d}-{:.0f}.ckpt'.format(i, rValidation)
+                    rValidation2 = 0.0
+                    for _ in range(1000):
+                        rGame = self.validate_play(player_target, self.opponent_validation)
+                        rValidation2 += 0.5 + 0.5 * rGame
+                    print("main: " + str(rValidation/10) + " target: " + str(rValidation2/10))
+                    file_name = 'model-{:d}-{:.0f}.ckpt'.format(i, rValidation/10)
                     saver.save(sess,self.path + '/' + file_name)
                     print("Saved Model " + file_name)
                 if i % 100 == 0:
