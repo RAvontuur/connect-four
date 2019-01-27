@@ -6,4 +6,4 @@ class Player_Manual:
         print(env)
         action = int(input("Enter action (0..6)"))
 
-        return env.move(action)
+        return env.move(action), action

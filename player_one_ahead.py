@@ -24,7 +24,7 @@ class Player_One_Ahead():
                 if env1.is_game_over():
                     if env1.game_result(env.next_to_move) > 0:
                         # print("lets win")
-                        return env.move(action1)
+                        return env.move(action1), action1
 
                 if self.play_level > 1:
                     # prevent opponent making a connect four
@@ -38,8 +38,8 @@ class Player_One_Ahead():
 
                     if not opponent_can_win:
                         # print("opponent can not win")
-                        return env.move(action1)
+                        return env.move(action1), action1
 
         # print("random move")
         action = random.choice(free_columns)
-        return env.move(action)
+        return env.move(action), action
