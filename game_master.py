@@ -2,6 +2,7 @@ from environment import ConnectFourEnvironment
 from player_montecarlo import Player_MonteCarlo
 from player_neural import Player_Neural
 from player_one_ahead import Player_One_Ahead
+from player_random import Player_Random
 
 number_of_plays = 100
 show_play = False
@@ -15,7 +16,10 @@ player1 = Player_Neural()
 # player2 = Player_Neural()
 # player1 = Player_MonteCarlo(10000)
 # player1 = Player_Random()
-player2 = Player_MonteCarlo(1000)
+player_rollout = Player_One_Ahead(2)
+# player_rollout = player1
+# player_rollout = Player_Random()
+player2 = Player_MonteCarlo(1000, rollout_player=player_rollout)
 # player2 = Player_One_Ahead(2)
 
 while i <= number_of_plays:

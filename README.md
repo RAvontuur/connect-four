@@ -29,3 +29,21 @@ oneahead / mainQN = targetQN\
 50.000 37.9\
 60.000 39.8
 
+Monte Carlo, using a payer for roll-out:
+
+player1 = Player_Neural()\
+player_rollout = Player_One_Ahead(2)\
+player2 = Player_MonteCarlo(1000, rollout_player=player_rollout)\
+20-10 (slow)
+
+player1 = Player_Neural()\
+player2 = Player_One_Ahead(2)\
+63-37
+
+player1 = Player_Neural()\
+player2 = Player_MonteCarlo(1000, rollout_player=None)\
+26-14
+
+player1 = Player_Neural()\
+player2 = Player_Random()\
+38-2

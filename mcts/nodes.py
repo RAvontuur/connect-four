@@ -39,9 +39,6 @@ class MonteCarloTreeSearchNode():
         weights = self.choices_weights(c_param)
         return self.children[np.argmax(weights)]
 
-    def rollout_policy(self, possible_moves):
-        return possible_moves[np.random.randint(len(possible_moves))]
-
     @property
     def q(self):
         wins = self._results[1]
@@ -63,14 +60,6 @@ class MonteCarloTreeSearchNode():
     def is_terminal_node(self):
         return self.state.is_game_over()
 
-    def rollout(self):
-        player = self.state.next_to_move
-        current_rollout_state = self.state
-        while not current_rollout_state.is_game_over():
-            possible_moves = current_rollout_state.get_legal_actions()
-            action = self.rollout_policy(possible_moves)
-            current_rollout_state = current_rollout_state.move(action)
-        return current_rollout_state.game_result(player)
 
     def backpropagate(self, result):
         self._number_of_visits += 1.
