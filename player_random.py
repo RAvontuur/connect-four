@@ -8,4 +8,4 @@ class Player_Random:
         actions = env.get_legal_actions()
         action = random.choice(actions)
 
-        return env.move(action)
+        return env.move(action), action

@@ -59,4 +59,4 @@ class Player_Neural:
         actions = q_out * (0.75 + 0.25 * np.random.random_sample((7,))) + 0.01 * np.random.random_sample((7,))
         action = np.argmax(actions)
 
-        return env.move(action)
+        return env.move(action), action

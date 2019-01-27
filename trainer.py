@@ -8,6 +8,7 @@ from environment import ConnectFourEnvironment
 from player_montecarlo import Player_MonteCarlo
 from player_one_ahead import Player_One_Ahead
 from player_neural import Player_Neural
+from player_random import Player_Random
 
 
 # Experience Replay
@@ -43,8 +44,6 @@ class Trainer():
         self.update_freq = 1  # How often to perform a training step.
         self.startE = 0.5  # Starting chance of random action
         self.endE = 0.01  # Final chance of random action
-        self.greedy_moves = 3  # number of greedy initial moves
-        self.greedy_moves_e = 0.5 # chance of random action during greedy initial moves
         self.annealing_episodes = 1000.  # How many steps of training to reduce startE to endE.
         self.num_episodes = 200000  # How many episodes of game environment to train network with.
         self.pre_train_episodes = 1000  # How many steps of random actions before training begins.
@@ -89,14 +88,19 @@ class Trainer():
 
             player_in_training = Player_Neural(sess, mainQN)
             player_target = Player_Neural(sess, targetQN)
+            player_pre_train = Player_Random()
             if self.opponent_training is None:
                 self.opponent_training = player_in_training
 
             for i in range(1, self.num_episodes+1):
                 pre_train = i < self.pre_train_episodes
 
-                rGame, episodeBuffer = self.play_game(sess, mainQN,
-                    e, pre_train and not self.load_model, self.greedy_moves, self.greedy_moves_e)
+                if pre_train:
+                    player = player_pre_train
+                else:
+                    player = player_in_training
+
+                rGame, episodeBuffer = self.play_game(player, self.opponent_training)
                 rList.append(rGame)
                 myBuffer.add(episodeBuffer.buffer)
 
@@ -114,12 +118,12 @@ class Trainer():
                 if i % 10000 == 0:
                     rValidation = 0.0
                     for _ in range(1000):
-                        rGame = self.validate_play(player_in_training, self.opponent_validation)
-                        rValidation += 0.5 + 0.5 * rGame
+                        rGame, _ = self.play_game(player_in_training, self.opponent_validation)
+                        rValidation += 0.5 + 0.5 * float(rGame)
                     rValidation2 = 0.0
                     for _ in range(1000):
-                        rGame = self.validate_play(player_target, self.opponent_validation)
-                        rValidation2 += 0.5 + 0.5 * rGame
+                        rGame, _ = self.play_game(player_target, self.opponent_validation)
+                        rValidation2 += 0.5 + 0.5 * float(rGame)
                     print("main: " + str(rValidation/10) + " target: " + str(rValidation2/10))
                     file_name = 'model-{:d}-{:.0f}.ckpt'.format(i, rValidation/10)
                     saver.save(sess,self.path + '/' + file_name)
@@ -127,11 +131,9 @@ class Trainer():
                 if i % 100 == 0:
                     print(i,np.mean(rList[-500:]), e)
 
-            print("Percent of succesful episodes: {:.1f} %".format(50.0 + 50.0 * (sum(rList)/self.num_episodes)))
+            print("FINISHED")
 
-            return rList
-
-    def play_game(self, sess, mainQN,  e, pre_train, greedy_moves, greedy_moves_e):
+    def play_game(self, player_pupil, player_master):
 
         episodeBuffer = experience_buffer()
 
@@ -139,51 +141,21 @@ class Trainer():
         env = ConnectFourEnvironment()
         assert(env.next_to_move == 1)
         s = processState(env.state)
-        r_game = 0
-        j = 0
-        #The Q-Network
-        while j < self.max_epLength: #If the agent takes longer than 200 moves, end the trial.
-            j+=1
-            #Choose an action by greedily (with e chance of random action) from the Q-network
-            e_mod = e
-            if j <= greedy_moves:
-                e_mod = greedy_moves_e
-            if np.random.rand(1) < e_mod or pre_train:
-                a = random.choice(env.get_legal_actions())
-            else:
-                a = sess.run(mainQN.predict,feed_dict={mainQN.scalarInput:[s]})[0]
-
-            env = env.move(a)
+        while True:
+            env, a = player_pupil.play(env)
             r = env.game_result(1)
 
             if not env.terminated:
                 assert(env.next_to_move == -1)
-                env = self.opponent_training.play(env)
+                env = player_master.play(env)
 
             s1 = processState(env.state)
             d = env.terminated
             episodeBuffer.add(np.reshape(np.array([s,a,r,s1,d]),[1,5])) #Save the experience to our episode buffer.
 
-            r_game += r
             s = s1
 
-            if d:
+            if env.terminated:
                 break
 
-        return r_game, episodeBuffer
-
-    def validate_play(self, player1, player2):
-        env = ConnectFourEnvironment()
-
-        while True:
-            assert(env.next_to_move == 1)
-            env = player1.play(env)
-            if env.is_game_over():
-                break
-
-            assert(env.next_to_move == -1)
-            env = player2.play(env)
-            if env.is_game_over():
-                break
-
-        return env.game_result(1)
+        return env.game_result(1), episodeBuffer
