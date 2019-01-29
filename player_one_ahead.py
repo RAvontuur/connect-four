@@ -20,25 +20,20 @@ class Player_One_Ahead():
         if self.play_level > 0:
             # try to find winning move
             for action1 in free_columns:
-                env1 = env.move(action1)
-                if env1.is_game_over():
-                    if env1.game_result(env.next_to_move) > 0:
-                        # print("lets win")
-                        return env.move(action1), action1
+                if env.is_winning_action(env.next_to_move, action1):
+                    # print("lets win")
+                    return env.move(action1), action1
 
-                if self.play_level > 1:
-                    # prevent opponent making a connect four
-                    opponent_can_win = False
-                    for action2 in free_columns:
-                        env2 = env1.move(action2)
-                        if env2.is_game_over():
-                            if env2.game_result(env1.next_to_move) > 0:
-                                opponent_can_win = True
-                                break
+        if self.play_level > 1:
+            # prevent opponent making a connect four if not doing action
+            for action1 in free_columns:
+                if env.is_winning_action(-env.next_to_move, action1):
+                    return env.move(action1), action1
 
-                    if not opponent_can_win:
-                        # print("opponent can not win")
-                        return env.move(action1), action1
+            # prevent opponent making a connect four if doing action
+            for action1 in free_columns:
+                if not env.is_winning_action(-env.next_to_move, action1, row_offset=1):
+                    return env.move(action1), action1
 
         # print("random move")
         action = random.choice(free_columns)

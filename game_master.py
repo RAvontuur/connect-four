@@ -1,10 +1,11 @@
+import time
 from environment import ConnectFourEnvironment
 from player_montecarlo import Player_MonteCarlo
 from player_neural import Player_Neural
 from player_one_ahead import Player_One_Ahead
 from player_random import Player_Random
 
-number_of_plays = 100
+number_of_plays = 10
 show_play = False
 
 i = 1
@@ -20,9 +21,11 @@ player_rollout = Player_One_Ahead(2)
 # player_rollout = player1
 # player_rollout = Player_Random()
 player2 = Player_MonteCarlo(1000, rollout_player=player_rollout)
-# player2 = Player_One_Ahead(2)
+#player2 = Player_One_Ahead(2)
 
+start_tot = 0
 while i <= number_of_plays:
+    start = time.time() * 1000
     print("play " + str(i) + " starts")
     env = ConnectFourEnvironment()
 
@@ -51,4 +54,10 @@ while i <= number_of_plays:
         result_2 += 0.5
 
     print("results: " + str(result_1) + " - " + str(result_2))
+    elapsed = time.time() * 1000 - start
+    start_tot += elapsed
+    print("took (ms): " + str(int(elapsed)))
+
     i += 1
+
+print("took (ms): " + str(int(start_tot/(i-1))))

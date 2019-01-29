@@ -54,37 +54,51 @@ class ConnectFourEnvironment():
             self.illegal_action = True
             return self.ILLEGAL_MOVE_PENALTY
 
-        if self.next_to_move == 1:
-            player = ConnectFourEnvironment.X
-        else:
-            player = ConnectFourEnvironment.O
 
-        self.apply_move(player, action)
 
         # Did player win
-        if self.check_winner(player, action):
+        if self.is_winning_action(self.next_to_move, action):
+            self.apply_move(self.next_to_move, action)
             self.terminated = True
             return self.WIN_REWARD
 
-        if self.game_over():
+        self.apply_move(self.next_to_move, action)
+
+        if self.all_occupied():
             self.terminated = True
             return self.DRAW_REWARD
 
         self.next_to_move = -self.next_to_move
         return self.NOT_LOSS
 
-    def apply_move(self, player, action):
+    def apply_move(self, next_to_move, action):
+
+        if next_to_move == 1:
+            player = ConnectFourEnvironment.X
+        else:
+            player = ConnectFourEnvironment.O
+
         for row in range(6):
             if np.all(self.state[0][action][row] == ConnectFourEnvironment.EMPTY):
                 self.state[0][action][row] = player
                 break
 
-    def check_winner(self, player, action):
+    def is_winning_action(self, next_to_move, action, row_offset=0):
 
-        for row in range(6):
-            if np.all(self.state[0][action][5 - row] == player):
-                action_row = 5 - row
+        if next_to_move == 1:
+            player = ConnectFourEnvironment.X
+        else:
+            player = ConnectFourEnvironment.O
+
+        action_row = 0
+        for row in range(5):
+            action_row = 5 - row
+            if not np.all(self.state[0][action][action_row - 1] == ConnectFourEnvironment.EMPTY):
                 break
+
+        action_row += row_offset
+        if action_row > 5:
+            return False
 
         left = 0
         right = 0
@@ -116,14 +130,6 @@ class ConnectFourEnvironment():
             if np.all(self.state[0][action][row] == player):
                 down = down + 1
                 row = row - 1
-            else:
-                break
-
-        row = action_row + 1
-        while row <= 5:
-            if np.all(self.state[0][action][row] == player):
-                up = up + 1
-                row = row + 1
             else:
                 break
 
@@ -182,7 +188,7 @@ class ConnectFourEnvironment():
         return False
 
 
-    def game_over(self):
+    def all_occupied(self):
         for col in range(7):
             if np.all(self.state[0][col][5] == ConnectFourEnvironment.EMPTY):
                 return False
