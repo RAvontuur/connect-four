@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import copy
 from collections import defaultdict
 
 class MonteCarloTreeSearchNode():
@@ -51,7 +52,8 @@ class MonteCarloTreeSearchNode():
 
     def expand(self):
         action = self.untried_actions.pop(0)
-        next_state = self.state.move(action)
+        next_state = copy.deepcopy(self.state)
+        next_state = next_state.move(action)
         child_node = MonteCarloTreeSearchNode(next_state, parent=self)
         self.children.append(child_node)
         self.tried_actions.append(action)

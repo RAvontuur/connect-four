@@ -50,3 +50,10 @@ player2 = Player_MonteCarlo(1000, rollout_player=None)\
 player1 = Player_Neural()\
 player2 = Player_Random()\
 38-2
+
+Monte Carlo performance optimalisatie:
+player1 = Player_One_Ahead(2)\
+player_rollout = Player_One_Ahead(2)\
+player2 = Player_MonteCarlo(1000, rollout_player=player_rollout)\
+10-0 : 62 sec per play (using own deepcopy implementation)
+

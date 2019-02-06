@@ -12,7 +12,7 @@ class Player_One_Ahead():
 
         free_columns = []
         for col in range(7):
-            if np.all(env.state[0][col][5] == ConnectFourEnvironment.EMPTY):
+            if env.state[col][5] == 0:
                 free_columns.append(col)
 
         random.shuffle(free_columns)

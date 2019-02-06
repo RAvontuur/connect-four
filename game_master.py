@@ -6,14 +6,14 @@ from player_one_ahead import Player_One_Ahead
 from player_random import Player_Random
 
 number_of_plays = 10
-show_play = False
+show_play = True
 
 i = 1
 
 result_1 = 0.
 result_2 = 0.
 
-player1 = Player_Neural()
+#player1 = Player_Neural()
 # player2 = Player_Neural()
 # player1 = Player_MonteCarlo(10000)
 # player1 = Player_Random()
@@ -21,13 +21,14 @@ player_rollout = Player_One_Ahead(2)
 # player_rollout = player1
 # player_rollout = Player_Random()
 player2 = Player_MonteCarlo(1000, rollout_player=player_rollout)
-#player2 = Player_One_Ahead(2)
+player1 = Player_One_Ahead(2)
 
 start_tot = 0
 while i <= number_of_plays:
     start = time.time() * 1000
     print("play " + str(i) + " starts")
     env = ConnectFourEnvironment()
+    env.reset_board()
 
     while True:
         assert(env.next_to_move == 1)
@@ -60,4 +61,4 @@ while i <= number_of_plays:
 
     i += 1
 
-print("took (ms): " + str(int(start_tot/(i-1))))
+print("took (ms): " + str(start_tot/(i-1)))

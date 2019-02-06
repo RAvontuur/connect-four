@@ -1,4 +1,5 @@
 import random
+import copy
 from mcts.nodes import MonteCarloTreeSearchNode
 
 class MonteCarloTreeSearch:
@@ -40,7 +41,7 @@ class MonteCarloTreeSearch:
 
     def rollout(self, node):
         next_to_move = node.state.next_to_move
-        current_rollout_state = node.state
+        current_rollout_state = copy.deepcopy(node.state)
         while not current_rollout_state.is_game_over():
             current_rollout_state, _ = self.rollout_policy(current_rollout_state)
         return current_rollout_state.game_result(next_to_move)
