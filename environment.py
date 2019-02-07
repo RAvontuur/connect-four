@@ -15,23 +15,14 @@ class ConnectFourEnvironment():
         self.illegal_action = False
         self.next_to_move = 1
         self.state = None
-        # self.state = [np.zeros(shape=(7, 6, 2), dtype=np.float32)]
+        self.cols = None
 
     def __str__(self):
         return self.display()
 
-    # def __deepcopy__(self, memodict={}):
-    #     copy_object = ConnectFourEnvironment()
-    #     copy_object.reward = self.reward
-    #     copy_object.terminated = self.terminated
-    #     copy_object.illegal_action = self.illegal_action
-    #     copy_object.next_to_move = self.next_to_move
-    #     copy_object.state = np.copy(self.state)
-    #
-    #     return copy_object
-
     def reset_board(self):
         self.state = np.zeros(shape=(7, 6))
+        self.cols = [0,0,0,0,0,0,0]
 
     def game_result(self, player):
         if player == self.next_to_move:
@@ -74,21 +65,12 @@ class ConnectFourEnvironment():
         return ConnectFourEnvironment.NOT_LOSS
 
     def apply_move(self, next_to_move, action):
-
-        for row in range(6):
-            if self.state[action][row] == 0:
-                self.state[action][row] = self.next_to_move
-                break
+        self.state[action][self.cols[action]] = next_to_move
+        self.cols[action] += 1
 
     def is_winning_action(self, next_to_move, action, row_offset=0):
 
-        action_row = 0
-        for row in range(5):
-            action_row = 5 - row
-            if not self.state[action][action_row - 1] == 0:
-                break
-
-        action_row += row_offset
+        action_row = self.cols[action] + row_offset
         if action_row > 5:
             return False
 
@@ -182,7 +164,7 @@ class ConnectFourEnvironment():
 
     def all_occupied(self):
         for col in range(7):
-            if self.state[col][5] == 0:
+            if self.cols[col] < 5:
                 return False
         return True
 
