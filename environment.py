@@ -20,15 +20,15 @@ class ConnectFourEnvironment():
     def __str__(self):
         return self.display()
 
-    # def __deepcopy__(self, memodict={}):
-    #     copy_object = ConnectFourEnvironment()
-    #     copy_object.reward = self.reward
-    #     copy_object.terminated = self.terminated
-    #     copy_object.illegal_action = self.illegal_action
-    #     copy_object.next_to_move = self.next_to_move
-    #     copy_object.state = np.copy(self.state)
-    #
-    #     return copy_object
+    def get_game_state(self):
+        return [self.reward, self.terminated, self.illegal_action, self.next_to_move, self.state]
+
+    def set_game_state(self, game_state):
+        self.reward = game_state[0]
+        self.terminated = game_state[1]
+        self.illegal_action = game_state[2]
+        self.next_to_move = game_state[3]
+        self.state = game_state[4]
 
     def reset_board(self):
         self.state = np.zeros(shape=(7, 6))
@@ -77,7 +77,7 @@ class ConnectFourEnvironment():
 
         for row in range(6):
             if self.state[action][row] == 0:
-                self.state[action][row] = self.next_to_move
+                self.state[action][row] = next_to_move
                 break
 
     def is_winning_action(self, next_to_move, action, row_offset=0):
@@ -90,6 +90,7 @@ class ConnectFourEnvironment():
 
         action_row += row_offset
         if action_row > 5:
+            # illegal move
             return False
 
         left = 0
@@ -104,24 +105,24 @@ class ConnectFourEnvironment():
         col = action - 1
         while col >= 0:
             if self.state[col][action_row] == next_to_move:
-                left = left + 1
-                col = col - 1
+                left += 1
+                col -= 1
             else:
                 break
 
         col = action + 1
         while col <= 6:
             if self.state[col][action_row] == next_to_move:
-                right = right + 1
-                col = col + 1
+                right += 1
+                col += 1
             else:
                 break
 
         row = action_row - 1
         while row >= 0:
             if self.state[action][row] == next_to_move:
-                down = down + 1
-                row = row - 1
+                down += 1
+                row -= 1
             else:
                 break
 
@@ -129,9 +130,9 @@ class ConnectFourEnvironment():
         row = action_row - 1
         while row >= 0 and col >= 0:
             if self.state[col][row] == next_to_move:
-                left_down = left_down + 1
-                col = col - 1
-                row = row - 1
+                left_down += 1
+                col -= 1
+                row -= 1
             else:
                 break
 
@@ -139,9 +140,9 @@ class ConnectFourEnvironment():
         row = action_row + 1
         while row <= 5 and col <= 6:
             if self.state[col][row] == next_to_move:
-                right_up = right_up + 1
-                col = col + 1
-                row = row + 1
+                right_up += 1
+                col += 1
+                row += 1
             else:
                 break
 
@@ -149,9 +150,9 @@ class ConnectFourEnvironment():
         row = action_row + 1
         while row <= 5 and col >= 0:
             if self.state[col][row] == next_to_move:
-                left_up = left_up + 1
-                col = col - 1
-                row = row + 1
+                left_up += 1
+                col -= 1
+                row += 1
             else:
                 break
 
@@ -159,9 +160,9 @@ class ConnectFourEnvironment():
         row = action_row - 1
         while row >= 0 and col <= 6:
             if self.state[col][row] == next_to_move:
-                right_down = right_down + 1
-                col = col + 1
-                row = row - 1
+                right_down += 1
+                col += 1
+                row -= 1
             else:
                 break
 
