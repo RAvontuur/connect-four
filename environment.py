@@ -43,7 +43,11 @@ class ConnectFourEnvironment():
         return self.terminated
 
     def get_legal_actions(self):
-        return [0, 1, 2, 3, 4, 5, 6]
+        free_columns = []
+        for col in range(7):
+            if self.state[col][5] == 0:
+                free_columns.append(col)
+        return free_columns
 
     def move(self, action):
         self.reward = self.step(action)
@@ -82,10 +86,8 @@ class ConnectFourEnvironment():
 
     def is_winning_action(self, next_to_move, action, row_offset=0):
 
-        action_row = 0
-        for row in range(5):
-            action_row = 5 - row
-            if not self.state[action][action_row - 1] == 0:
+        for action_row in range(6):
+            if self.state[action][action_row] == 0:
                 break
 
         action_row += row_offset

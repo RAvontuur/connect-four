@@ -1,4 +1,3 @@
-import random
 import copy
 from mcts.nodes import MonteCarloTreeSearchNode
 
@@ -13,9 +12,9 @@ class MonteCarloTreeSearch:
         for i in range(0, simulations_number):
             if i+1 % 10000 == 0:
                 print("simulation " + str(i))
-            v = self.tree_policy()
-            reward = self.rollout(v)
-            v.backpropagate(reward)
+            node = self.tree_policy()
+            reward = self.rollout(node)
+            node.backpropagate(reward)
         # exploitation only
         return self.root.best_child(c_param = 0.)
 
@@ -24,7 +23,14 @@ class MonteCarloTreeSearch:
         current_node = self.root
         while not current_node.is_terminal_node():
             if not current_node.is_fully_expanded():
-                return current_node.expand()
+                # expand
+                next_state = copy.deepcopy(current_node.state)
+                next_state, action = self.player.play(next_state, current_node.untried_actions)
+
+                current_node.untried_actions.remove(action)
+                child_node = MonteCarloTreeSearchNode(next_state, parent=current_node)
+                current_node.children.append(child_node)
+                return child_node
             else:
                 current_node = current_node.best_child()
         return current_node

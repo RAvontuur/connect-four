@@ -20,8 +20,8 @@ result_2 = 0.
 player_rollout = Player_One_Ahead()
 # player_rollout = player1
 # player_rollout = Player_Random()
-player2 = Player_MonteCarlo(1000, rollout_player=player_rollout)
-player1 = Player_One_Ahead()
+player1 = Player_MonteCarlo(4, rollout_player=player_rollout)
+player2 = Player_One_Ahead()
 
 start_tot = 0
 while i <= number_of_plays:

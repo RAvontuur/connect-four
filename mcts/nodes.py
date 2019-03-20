@@ -9,7 +9,6 @@ class MonteCarloTreeSearchNode():
         self.state = state
         self.parent = parent
         self.children = []
-        self.tried_actions = []
         self._number_of_visits = 0.
         self._results = defaultdict(int)
         self.untried_actions = self.state.get_legal_actions()
@@ -49,15 +48,6 @@ class MonteCarloTreeSearchNode():
     @property
     def n(self):
         return self._number_of_visits
-
-    def expand(self):
-        action = self.untried_actions.pop(0)
-        next_state = copy.deepcopy(self.state)
-        next_state = next_state.move(action)
-        child_node = MonteCarloTreeSearchNode(next_state, parent=self)
-        self.children.append(child_node)
-        self.tried_actions.append(action)
-        return child_node
 
     def is_terminal_node(self):
         return self.state.is_game_over()

@@ -2,15 +2,14 @@ import random
 
 class Player_One_Ahead():
 
-    def play(self, env):
+    def play(self, env, untried_actions=None):
         assert(env.terminated == False)
 
-        free_columns = env.get_legal_actions()
-        # for col in range(7):
-        #     if env.state[col][5] == 0:
-        #         free_columns.append(col)
-
-        random.shuffle(free_columns)
+        if untried_actions == None:
+            free_columns = env.get_legal_actions()
+            random.shuffle(free_columns)
+        else:
+            free_columns = untried_actions
 
         # try to find winning move
         for action1 in free_columns:
