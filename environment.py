@@ -15,7 +15,7 @@ class ConnectFourEnvironment():
         self.illegal_action = False
         self.next_to_move = 1
         self.state = None
-        # self.state = [np.zeros(shape=(7, 6, 2), dtype=np.float32)]
+        self.state = np.zeros(shape=(7, 6))
 
     def __str__(self):
         return self.display()
@@ -29,9 +29,6 @@ class ConnectFourEnvironment():
         self.illegal_action = game_state[2]
         self.next_to_move = game_state[3]
         self.state = game_state[4]
-
-    def reset_board(self):
-        self.state = np.zeros(shape=(7, 6))
 
     def game_result(self, player):
         if player == self.next_to_move:
@@ -56,26 +53,25 @@ class ConnectFourEnvironment():
     def step(self, action):
         # Illegal move -- too high stack of squares
         if not self.state[action][5] == 0:
-            self.terminated = True
-            self.illegal_action = True
-            return ConnectFourEnvironment.ILLEGAL_MOVE_PENALTY
-
-
+            return self.finish(ConnectFourEnvironment.ILLEGAL_MOVE_PENALTY, True, illegal=True)
 
         # Did player win
         if self.is_winning_action(self.next_to_move, action):
             self.apply_move(self.next_to_move, action)
-            self.terminated = True
-            return ConnectFourEnvironment.WIN_REWARD
+            return self.finish(ConnectFourEnvironment.WIN_REWARD, True)
 
         self.apply_move(self.next_to_move, action)
 
         if self.all_occupied():
-            self.terminated = True
-            return ConnectFourEnvironment.DRAW_REWARD
+            return self.finish(ConnectFourEnvironment.DRAW_REWARD, True)
 
+        return self.finish(ConnectFourEnvironment.NOT_LOSS, False)
+
+    def finish(self, result, terminate, illegal = False):
+        self.illegal_action = illegal
+        self.terminated = terminate
         self.next_to_move = -self.next_to_move
-        return ConnectFourEnvironment.NOT_LOSS
+        return -result
 
     def apply_move(self, next_to_move, action):
 

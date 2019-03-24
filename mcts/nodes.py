@@ -1,6 +1,5 @@
 import numpy as np
 import random
-import copy
 from collections import defaultdict
 
 class MonteCarloTreeSearchNode():
@@ -18,8 +17,9 @@ class MonteCarloTreeSearchNode():
         return len(self.untried_actions) == 0
 
     def choices_weights(self, c_param=1.4):
+        # the children have the result from opponents viewpoint
         return [
-            (c.q / (c.n)) + c_param * np.sqrt((2 * np.log(self.n) / (c.n)))
+            (-c.q / (c.n)) + c_param * np.sqrt((2 * np.log(self.n) / (c.n)))
             for c in self.children
         ]
 
@@ -36,6 +36,8 @@ class MonteCarloTreeSearchNode():
         ]
 
     def best_child(self, c_param=1.4):
+        # print(self.choices_q())
+        # print(self.choices_n())
         weights = self.choices_weights(c_param)
         return self.children[np.argmax(weights)]
 
