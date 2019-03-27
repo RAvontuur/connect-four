@@ -5,24 +5,26 @@ import tensorflow as tf
 from qnetwork import Qnetwork
 
 
-# This is a simple function to resize our game frames.
-def processState(states):
-    return np.reshape(states, [7 * 6 * 2])
+def processState(env):
+    state = env.state
 
+    if env.next_to_move == 1:
+        X = np.array([1.0, 0.0])
+        O = np.array([0.0, 1.0])
+    else:
+        O = np.array([1.0, 0.0])
+        X = np.array([0.0, 1.0])
 
-def invert_state(state):
-    X = np.array([1.0, 0.0])
-    O = np.array([0.0, 1.0])
-
-    state = copy.deepcopy(state)
-
+    neural_state = np.zeros(shape=(7, 6, 2), dtype=np.float32)
     for row in range(6):
         for col in range(7):
-            if np.all(state[0][col][row] == X):
-                state[0][col][row] = O
-            elif np.all(state[0][col][row] == O):
-                state[0][col][row] = X
-    return state
+            if state[col][row] == 1:
+                neural_state[col][row] = X
+            elif state[col][row] == -1:
+                neural_state[col][row] = O
+
+    return np.reshape([neural_state], [7 * 6 * 2])
+
 
 
 class Player_Neural:
@@ -47,16 +49,21 @@ class Player_Neural:
             self.sess = sess
             self.mainQN = mainQN
 
-    def play(self, env):
-        assert (env.terminated == False)
+    def play(self, env, untried_actions=None):
+        assert(env.terminated == False)
 
-        state = env.state
-        if env.next_to_move == -1:
-            state = invert_state(state)
-
-        s = processState(state)
+        s = processState(env)
         q_out = self.sess.run(self.mainQN.Qout, feed_dict={self.mainQN.scalarInput: [s]})[0]
         actions = q_out * (0.75 + 0.25 * np.random.random_sample((7,))) + 0.01 * np.random.random_sample((7,))
+
+        # eliminate the tried actions
+        if untried_actions is not None:
+            for a in range(0,7):
+                if a in untried_actions:
+                    pass
+                else:
+                    actions[a] = -100000000.0
+
         action = np.argmax(actions)
 
         return env.move(action), action

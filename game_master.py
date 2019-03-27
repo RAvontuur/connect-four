@@ -62,18 +62,18 @@ def run():
     # print("took (ms): " + str(start_tot/(i-1)))
 
 
-
-for j in range(1,21):
-    #player1 = Player_Neural()
+print("starting")
+for j in range(1,11):
+    print("j : " + str(j))
+    # player1 = Player_Neural()
     # player2 = Player_Neural()
-    # player1 = Player_MonteCarlo(10000)
     # player1 = Player_Random()
     # player_rollout = Player_One_Ahead()
-    # player_rollout = player1
-    player_rollout = Player_Random()
+    player_rollout = Player_Neural()
+    # player_rollout = Player_Random()
     player1 = Player_MonteCarlo(j, rollout_player=player_rollout)
-    player2 = Player_One_Ahead()
-    #player2 = Player_Random()
+    # player2 = Player_One_Ahead()
+    player2 = Player_Neural()
     run()
 
 
