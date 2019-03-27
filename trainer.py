@@ -2,6 +2,7 @@ import numpy as np
 import random
 import tensorflow as tf
 import os
+import player_neural
 from qnetwork import Qnetwork
 from double_q_learner import DoubleQLearner
 from environment import ConnectFourEnvironment
@@ -26,10 +27,9 @@ class experience_buffer():
     def sample(self,size):
         return np.reshape(np.array(random.sample(self.buffer,size)),[size,5])
 
-# This is a simple function to resize our game frames.
-def processState(states):
-    return np.reshape(states,[7*6*2])
-
+def create_opponent_training(sess, mainQN):
+    player_rollout = Player_Neural(sess, mainQN)
+    return Player_MonteCarlo(7, rollout_player=player_rollout)
 
 
 class Trainer():
@@ -37,9 +37,9 @@ class Trainer():
 
         # settings
         # self.opponent_training = None
-        self.opponent_training = Player_One_Ahead()
-        #self.opponent_training = Player_MonteCarlo(100)
-        self.opponent_validation = Player_One_Ahead()
+        # self.opponent_training = Player_One_Ahead()
+        self.opponent_training = None
+        self.opponent_validation = Player_MonteCarlo(7, rollout_player=Player_One_Ahead())
         self.batch_size = 32  # How many experiences to use for each training step.
         self.update_freq = 1  # How often to perform a training step.
         self.startE = 0.5  # Starting chance of random action
@@ -48,6 +48,7 @@ class Trainer():
         self.num_episodes = 200000  # How many episodes of game environment to train network with.
         self.pre_train_episodes = 1000  # How many steps of random actions before training begins.
         self.max_epLength = 50  # The max allowed length of our episode.
+        self.periodically_save = 1000
         self.load_model = False  # Whether to load a saved model.
         self.path = "./dqn"  # The path to save our model to.
 
@@ -90,7 +91,7 @@ class Trainer():
             player_target = Player_Neural(sess, targetQN)
             player_pre_train = Player_Random()
             if self.opponent_training is None:
-                self.opponent_training = player_in_training
+                self.opponent_training = create_opponent_training(sess, mainQN)
 
             for i in range(1, self.num_episodes+1):
                 pre_train = i < self.pre_train_episodes
@@ -115,19 +116,26 @@ class Trainer():
                         learner.learn(sess, trainBatch)
 
                 #Periodically save the model.
-                if i % 10000 == 0:
+                if i % self.periodically_save == 0:
                     rValidation = 0.0
-                    for _ in range(1000):
+                    for _ in range(100):
                         rGame, _ = self.play_game(player_in_training, self.opponent_validation)
                         rValidation += 0.5 + 0.5 * float(rGame)
                     rValidation2 = 0.0
-                    for _ in range(1000):
+                    for _ in range(100):
                         rGame, _ = self.play_game(player_target, self.opponent_validation)
                         rValidation2 += 0.5 + 0.5 * float(rGame)
-                    print("main: " + str(rValidation/10) + " target: " + str(rValidation2/10))
-                    file_name = 'model-{:d}-{:.0f}.ckpt'.format(i, rValidation/10)
+                    rValidation3 = 0.0
+                    for _ in range(100):
+                        rGame, _ = self.play_game(player_in_training, self.opponent_training)
+                        rValidation3 += 0.5 + 0.5 * float(rGame)
+                    print("main: " + str(rValidation) + " target: " + str(rValidation2) + " opponent: " + str(rValidation3))
+                    file_name = 'model-{:d}-{:.0f}.ckpt'.format(i, rValidation)
                     saver.save(sess,self.path + '/' + file_name)
                     print("Saved Model " + file_name)
+
+                    # upgrade the opponent
+                    self.opponent_training = create_opponent_training(sess, mainQN)
                 if i % 100 == 0:
                     print(i,np.mean(rList[-500:]), e)
 
@@ -140,16 +148,16 @@ class Trainer():
         #Reset environment and get first new observation
         env = ConnectFourEnvironment()
         assert(env.next_to_move == 1)
-        s = processState(env.state)
+        s = player_neural.processState(env)
         while True:
             env, a = player_pupil.play(env)
             r = env.game_result(1)
 
             if not env.terminated:
                 assert(env.next_to_move == -1)
-                env = player_master.play(env)
+                env, a1 = player_master.play(env)
 
-            s1 = processState(env.state)
+            s1 = player_neural.processState(env)
             d = env.terminated
             episodeBuffer.add(np.reshape(np.array([s,a,r,s1,d]),[1,5])) #Save the experience to our episode buffer.
 

@@ -3,7 +3,7 @@ from mcts.search import MonteCarloTreeSearch
 
 class Player_MonteCarlo:
 
-    def __init__(self, number_of_simulations=1000, rollout_player=None):
+    def __init__(self, number_of_simulations=7, rollout_player=None):
         self.number_of_simulations = number_of_simulations
         self.rollout_player = rollout_player
 
