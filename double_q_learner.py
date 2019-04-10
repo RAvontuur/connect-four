@@ -15,7 +15,7 @@ class DoubleQLearner():
 
 
     def learn(self, sess, trainBatch):
-        # below we perform the Double-DQN update to the target Q-values
+        # below we perform the Double-DQN update trainer.pyto the target Q-values
         # experience format trainBatch: [[s,a,r,s1,d], ..]
 
         # calculate the actions for each experienced state, the state after applying the chosen action

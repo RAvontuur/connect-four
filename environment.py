@@ -14,6 +14,7 @@ class ConnectFourEnvironment():
         self.terminated = False
         self.illegal_action = False
         self.next_to_move = 1
+        self.last_action = None
         self.state = None
         self.state = np.zeros(shape=(7, 6))
 
@@ -22,6 +23,9 @@ class ConnectFourEnvironment():
 
     def get_game_state(self):
         return [self.reward, self.terminated, self.illegal_action, self.next_to_move, self.state]
+
+    def get_game_state_short(self):
+        return self.who_is_now_short() + self.terminated_short() + self.display_short()
 
     def set_game_state(self, game_state):
         self.reward = game_state[0]
@@ -51,6 +55,8 @@ class ConnectFourEnvironment():
         return self
 
     def step(self, action):
+        self.last_action = action
+
         # Illegal move -- too high stack of squares
         if not self.state[action][5] == 0:
             return self.finish(ConnectFourEnvironment.ILLEGAL_MOVE_PENALTY, True, illegal=True)
@@ -206,6 +212,20 @@ class ConnectFourEnvironment():
 
         return s
 
+    def terminated_short(self):
+        if self.terminated:
+            return "T"
+        else:
+            return " "
+
+    def who_is_now_short(self):
+        s = ""
+        if self.next_to_move == 1:
+            s += "X"
+        else:
+            s += "O"
+        return s
+
     def display(self):
         s = ""
         x = "X"
@@ -220,4 +240,18 @@ class ConnectFourEnvironment():
                     s += o
             s += "\n"
         s += self.who_is_now() + "\n"
+        return s
+
+    def display_short(self):
+        s = ""
+        x = "X"
+        o = "O"
+        for row in range(6):
+            for col in range(7):
+                if self.state[col][row] == 0:
+                    s += "_"
+                if self.state[col][row] == 1:
+                    s += x
+                if self.state[col][row] == -1:
+                    s += o
         return s
