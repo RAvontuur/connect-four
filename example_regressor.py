@@ -19,29 +19,31 @@ def parse(s,next_to_move):
             elif s[col+(row*7)] == "O":
                 neural_state[col][row] = O
 
-    return np.reshape([neural_state], [7 * 6 * 2])
-
-print(parse("O_XXX____OOX______O_______________________", 1))
-print(parse("O_XXX____OOX______O_______________________", -1))
+    return np.reshape([neural_state], [7 * 6 * 2]).tolist()
 
 
-board = tf.feature_column.numeric_column('board', shape=4)
+board1 = parse("O_XXXO____________________________________", -1)
+label1 = 0.0
+board2 = parse("O_XXX_O___________________________________", -1)
+label2 = -1.0
+board3 = parse("OOXXX_____________________________________", -1)
+label3 = -1.0
+print([board1, board2, board3])
 
 
-featcols = [board]
-
-model = tf.estimator.DNNRegressor(feature_columns=featcols, hidden_units=[1024, 512, 256])
+board_column_def = tf.feature_column.numeric_column('board', shape=84)
+model = tf.estimator.DNNRegressor(feature_columns=[board_column_def], hidden_units=[1024, 512, 256])
 
 def train_input_fn():
-    features = {"board":[[0,0,0,0],[1,0,1,0], [0,1,0,1]]}
-    labels = [ 0, 1, -1 ]
+    features = {"board":[board1, board2, board3]}
+    labels = [label1, label2, label3]
     return features, labels
 
 print("train")
 model.train(train_input_fn,steps=100)
 
 def predict_input_fn():
-    features = {"board":[[0,0,0,0], [1,0,1,0], [0,1,0,0]]}
+    features = {"board":[board1, board2, board3]}
     return features
 
 print("predict")
