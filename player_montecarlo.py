@@ -46,23 +46,26 @@ class Player_MonteCarlo:
         return env, env.last_action
 
     def get_boards_and_labels(self):
-        [boards, labels] = self.get_boards_and_labels_for_node(self._mcts.root, None, None)
-        return boards, labels
+        [boards, labels, visits] = self.get_boards_and_labels_for_node(self._mcts.root, None, None, None)
+        return boards, labels, visits
 
-    def get_boards_and_labels_for_node(self, node, boards, labels):
+    def get_boards_and_labels_for_node(self, node, boards, labels, visits):
 
         board = processState(node.state)
-        label = node.v() * node.state.next_to_move
+        label = node.v()
+        visit = node.n
         if boards is None:
             boards = [board]
             labels = [label]
+            visits = [visit]
         else:
             boards.append(board)
             labels.append(label)
+            visits.append(visit)
 
         for c in node.children:
-            [boards, labels] = self.get_boards_and_labels_for_node(c, boards, labels)
-        return boards, labels
+            [boards, labels, visits] = self.get_boards_and_labels_for_node(c, boards, labels, visits)
+        return boards, labels, visits
 
     def log(self, mcts):
         f = open("mcts.txt","w+")
@@ -81,6 +84,8 @@ class Player_MonteCarlo:
         f.write(node.state.get_game_state_short())
         f.write(",")
         f.write(str(node.v()))
+        f.write(",")
+        f.write(str(node.n))
         f.write("\n")
         for c in node.children:
             self.log_node(f, c, level+1)

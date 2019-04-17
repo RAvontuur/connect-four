@@ -47,13 +47,8 @@ class MonteCarloTreeSearchNode():
         loses = self._results[-1]
         draws = self._results[0]
         n = wins + loses + draws
-        f = math.pow(n / (2 + n), 2)
-        # n=1: f = 1/9
-        # n=4: f = 4/9
-        # n=10: f = 25/36
 
-        return  f * (wins - loses) / n
-
+        return  (wins - loses) / n
 
     @property
     def q(self):

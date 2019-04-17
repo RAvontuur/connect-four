@@ -22,33 +22,37 @@ def parse(s,next_to_move):
     return np.reshape([neural_state], [7 * 6 * 2]).tolist()
 
 
-board1 = parse("O_XXXO____________________________________", -1)
-label1 = 0.0
-board2 = parse("O_XXX_O___________________________________", -1)
-label2 = -1.0
-board3 = parse("OOXXX_____________________________________", -1)
-label3 = -1.0
-print([board1, board2, board3])
+board1 = parse("__________________________________________", 1)
+label1 = 0.2
+board2 = parse("___X______________________________________", -1)
+label2 = -0.2
+board3 = parse("X_________________________________________", -1)
+label3 = 0.05
+board4 = parse("____X_____________________________________", -1)
+label4 = 0.1
+
+print([board1, board2, board3, board4])
 
 
 board_column_def = tf.feature_column.numeric_column('board', shape=84)
 model = tf.estimator.DNNRegressor(feature_columns=[board_column_def], hidden_units=[1024, 512, 256])
 
 def train_input_fn():
-    features = {"board":[board1, board2, board3]}
-    labels = [label1, label2, label3]
+    features = {"board":[board1, board2, board3, board4]}
+    labels = [label1, label2, label3, label4]
     return features, labels
 
 print("train")
 model.train(train_input_fn,steps=100)
 
 def predict_input_fn():
-    features = {"board":[board1, board2, board3]}
+    features = {"board":[board1, board2, board3, board4]}
     return features
 
 print("predict")
 predictions = model.predict(predict_input_fn)
 print("predictions")
+print(next(predictions))
 print(next(predictions))
 print(next(predictions))
 print(next(predictions))
