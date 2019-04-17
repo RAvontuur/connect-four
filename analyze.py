@@ -38,7 +38,7 @@ labels_validation= [labels[i] for i in idxs_validation]
 # print(labels_sample)
 
 board_column_def = tf.feature_column.numeric_column('board', shape=84)
-model = tf.estimator.DNNRegressor(feature_columns=[board_column_def], hidden_units=[2*1024, 2*512, 2*256])
+model = tf.estimator.DNNRegressor(feature_columns=[board_column_def], hidden_units=[1024, 512, 256], model_dir='dnn-regressor')
 
 def train_input_fn():
     features = {"board": boards_sample}
@@ -106,7 +106,8 @@ board5 = parse("__OX______________________________________",  1)
 
 def predict_input_fn():
     features = {"board":[board0, board1, board2, board3, board4, board5]}
-    return features
+    dataset = tf.data.Dataset.from_tensor_slices((dict(features)))
+    return dataset.repeat().batch(1)
 
 print("predict")
 predictions = model.predict(predict_input_fn)

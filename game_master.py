@@ -2,10 +2,11 @@ import time
 from environment import ConnectFourEnvironment
 from player_montecarlo import Player_MonteCarlo
 from player_neural import Player_Neural
+from player_dnn_regressor import Player_DNN_Regressor
 from player_one_ahead import Player_One_Ahead
 from player_random import Player_Random
 
-number_of_plays = 100
+number_of_plays = 20
 show_play = False
 show_final_play = False
 show_intermediate_result = False
@@ -63,15 +64,18 @@ def run():
 
 
 print("starting")
-for j in range(10,11):
+for j in [1,7,10,20,30]:
     print("j : " + str(j))
     # player1 = Player_Neural()
     # player2 = Player_Neural()
     # player1 = Player_Random()
     # player_rollout = Player_One_Ahead()
     # player_rollout = Player_Neural()
-    player_rollout = Player_Random()
-    player1 = Player_MonteCarlo(j, rollout_player=player_rollout)
+    player_rollout1 = Player_DNN_Regressor()
+    player_rollout2 = Player_Random()
+    # player1 = Player_MonteCarlo(7, rollout_player=player_rollout1)
+    player1 = player_rollout1
+    # player2 = Player_MonteCarlo(j, rollout_player=player_rollout2)
     player2 = Player_One_Ahead()
     # player2 = Player_Neural()
     run()
