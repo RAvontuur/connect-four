@@ -1,5 +1,6 @@
 from mcts.nodes import MonteCarloTreeSearchNode
 from mcts.search import MonteCarloTreeSearch
+from play_writer import PlayWriter
 import numpy as np
 
 def processState(env):
@@ -68,24 +69,13 @@ class Player_MonteCarlo:
         return boards, labels, visits
 
     def log(self, mcts):
-        f = open("mcts.txt","w+")
-        self.log_node(f, mcts.root, 0)
-        f.close
 
-    def log_node(self, f, node, level):
-        # f.write(str(node.n) + "\n")
-        # f.write(str(node._results) + "\n")
-        # f.write(str(node.choices_weights(c_param=0.)) + "\n")
-        # f.write(str(node.choices_q()) + "\n")
-        # f.write(str(node.choices_n()) + "\n")
-        # f.write(str(node.state))
-        f.write(str(level))
-        f.write(",")
-        f.write(node.state.get_game_state_short())
-        f.write(",")
-        f.write(str(node.v()))
-        f.write(",")
-        f.write(str(node.n))
-        f.write("\n")
+        play_writer = PlayWriter("mcts.txt", write=True)
+
+        self.log_node(play_writer, mcts.root)
+        play_writer.close()
+
+    def log_node(self, play_writer, node):
+        play_writer.write_play(node.state, node.v(), node.n)
         for c in node.children:
-            self.log_node(f, c, level+1)
+            self.log_node(play_writer, c)

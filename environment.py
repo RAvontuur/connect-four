@@ -15,24 +15,41 @@ class ConnectFourEnvironment():
         self.illegal_action = False
         self.next_to_move = 1
         self.last_action = None
-        self.state = None
+        self.move_count = 0
         self.state = np.zeros(shape=(7, 6))
 
     def __str__(self):
         return self.display()
 
-    def get_game_state(self):
-        return [self.reward, self.terminated, self.illegal_action, self.next_to_move, self.state]
-
     def get_game_state_short(self):
-        return self.who_is_now_short() + self.terminated_short() + self.display_short()
+        return format(self.move_count, '02d') \
+               + self.who_is_now_short() \
+               + self.last_action_short() \
+               + self.terminated_short() \
+               + self.reward_short() \
+               + self.display_short()
 
-    def set_game_state(self, game_state):
-        self.reward = game_state[0]
-        self.terminated = game_state[1]
-        self.illegal_action = game_state[2]
-        self.next_to_move = game_state[3]
-        self.state = game_state[4]
+    def set_game_result_short(self, s):
+        self.move_count = int(s[0:2])
+        if s[2:3] == "X":
+            self.next_to_move = 1
+        else:
+            self.next_to_move = -1
+        if s[3:4] == " ":
+            self.last_action = None
+        else:
+            self.last_action = int(s[3:4])
+        self.terminated = s[4:5] == "T"
+        self.illegal_action = s[5:6] == "I"
+        if self.illegal_action:
+            self.reward = 1
+        elif s[5:6] == "+":
+            self.reward = 1
+        elif s[5:6] == "-":
+            self.reward = -1
+        else:
+            self.reward = 0
+        self.parse_state(s[6:48])
 
     def game_result(self, player):
         if player == self.next_to_move:
@@ -51,34 +68,34 @@ class ConnectFourEnvironment():
         return free_columns
 
     def move(self, action):
-        self.reward = self.step(action)
-        return self
-
-    def step(self, action):
         self.last_action = action
 
         # Illegal move -- too high stack of squares
         if not self.state[action][5] == 0:
-            return self.finish(ConnectFourEnvironment.ILLEGAL_MOVE_PENALTY, True, illegal=True)
+            return self.finish(ConnectFourEnvironment.ILLEGAL_MOVE_PENALTY, terminate=True, illegal=True)
 
         # Did player win
         if self.is_winning_action(self.next_to_move, action):
             self.apply_move(self.next_to_move, action)
-            return self.finish(ConnectFourEnvironment.WIN_REWARD, True)
+            return self.finish(ConnectFourEnvironment.WIN_REWARD, terminate=True)
 
         self.apply_move(self.next_to_move, action)
 
         if self.all_occupied():
-            return self.finish(ConnectFourEnvironment.DRAW_REWARD, True)
+            return self.finish(ConnectFourEnvironment.DRAW_REWARD, terminate=True)
 
-        return self.finish(ConnectFourEnvironment.NOT_LOSS, False)
+        return self.finish(ConnectFourEnvironment.NOT_LOSS)
 
-    def finish(self, result, terminate, illegal = False):
+    # private
+    def finish(self, result, terminate = False, illegal = False):
         self.illegal_action = illegal
         self.terminated = terminate
         self.next_to_move = -self.next_to_move
-        return -result
+        self.reward = -result
+        self.move_count += 1
+        return self
 
+    # private
     def apply_move(self, next_to_move, action):
 
         for row in range(6):
@@ -218,6 +235,23 @@ class ConnectFourEnvironment():
         else:
             return " "
 
+    def reward_short(self):
+        if self.illegal_action:
+            return "I"
+
+        if self.reward == 0:
+            return " "
+
+        if self.reward > 0:
+            return "+"
+        else:
+            return "-"
+
+    def last_action_short(self):
+        if self.last_action is None:
+            return " "
+        return format(self.last_action, '1d')
+
     def who_is_now_short(self):
         s = ""
         if self.next_to_move == 1:
@@ -244,14 +278,21 @@ class ConnectFourEnvironment():
 
     def display_short(self):
         s = ""
-        x = "X"
-        o = "O"
         for row in range(6):
             for col in range(7):
                 if self.state[col][row] == 0:
                     s += "_"
                 if self.state[col][row] == 1:
-                    s += x
+                    s += "X"
                 if self.state[col][row] == -1:
-                    s += o
+                    s += "O"
         return s
+
+    def parse_state(self, s):
+        self.state = np.zeros(shape=(7, 6))
+        for row in range(6):
+            for col in range(7):
+                if s[col+(row*7)] == "X":
+                    self.state[col][row] = 1
+                elif s[col+(row*7)] == "O":
+                    self.state[col][row] = -1

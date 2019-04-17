@@ -21,7 +21,7 @@ env, action = player1.play(env)
 print("size: "+ str(len(labels)))
 assert(len(labels) == len(boards))
 
-idxs = [ index for index, item in enumerate(visits) if item > 20]
+idxs = [ index for index, item in enumerate(visits) if item > 40]
 random.shuffle(idxs)
 print("size relevants = " + str(len(idxs)))
 idxs_sample = idxs[100:]
@@ -38,7 +38,11 @@ labels_validation= [labels[i] for i in idxs_validation]
 # print(labels_sample)
 
 board_column_def = tf.feature_column.numeric_column('board', shape=84)
-model = tf.estimator.DNNRegressor(feature_columns=[board_column_def], hidden_units=[1024, 512, 256], model_dir='dnn-regressor')
+model = tf.estimator.DNNRegressor(
+    feature_columns=[board_column_def],
+    hidden_units=[1024, 512, 256],
+    dropout=0.5,
+    model_dir='dnn-regressor')
 
 def train_input_fn():
     features = {"board": boards_sample}
