@@ -75,8 +75,8 @@ for j in [1,7,10,20,30]:
     player_rollout2 = Player_Random()
     # player1 = Player_MonteCarlo(7, rollout_player=player_rollout1)
     player1 = player_rollout1
-    # player2 = Player_MonteCarlo(j, rollout_player=player_rollout2)
-    player2 = Player_One_Ahead()
+    player2 = Player_MonteCarlo(j, rollout_player=player_rollout2)
+    # player2 = Player_One_Ahead()
     # player2 = Player_Neural()
     run()
 
