@@ -7,7 +7,7 @@ from player_random import Player_Random
 logging.getLogger().setLevel(logging.INFO)
 
 
-number_of_simulations = 200000
+number_of_simulations = 5000000
 player_rollout = Player_Random()
 player1 = Player_MonteCarlo(number_of_simulations, rollout_player=player_rollout)
 env = ConnectFourEnvironment()

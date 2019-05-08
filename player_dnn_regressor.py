@@ -6,7 +6,11 @@ class Player_DNN_Regressor:
 
     def __init__(self):
         board_column_def = tf.feature_column.numeric_column('board', shape=84)
-        self.model = tf.estimator.DNNRegressor(feature_columns=[board_column_def], hidden_units=[1024, 512, 256], model_dir='dnn-regressor')
+        self.model = tf.estimator.DNNRegressor(
+            feature_columns=[board_column_def],
+            label_dimension=8,
+            hidden_units=[1024, 512, 256],
+            model_dir='dnn-regressor')
 
 
     def play(self, env, untried_actions=None):
@@ -17,28 +21,21 @@ class Player_DNN_Regressor:
         else:
             actions = untried_actions
 
-        boards = []
-        for action in actions:
-            env_next = copy.deepcopy(env)
-            env_next.move(action)
-            board = env_next.processState()
-            boards.append(board)
-
+        board = env.processState()
 
         def predict_input_fn():
-            features = {"board": boards}
+            features = {"board": [board]}
             dataset = tf.data.Dataset.from_tensor_slices((dict(features)))
             return dataset.repeat().batch(1)
 
-
         predictions = self.model.predict(predict_input_fn)
 
-        predicted_values = np.zeros(shape=(len(boards)), dtype=np.float32)
-        for i in range(len(boards)):
-            predicted_values[i] = -next(predictions)["predictions"][0]
+        predicted_values = next(predictions)["predictions"]
 
-        # print(actions)
+        predicted_values = predicted_values[1:]
+        predicted_values = predicted_values[actions]
         # print(predicted_values)
+        # print(actions)
 
         action = actions[np.argmax(predicted_values)]
 

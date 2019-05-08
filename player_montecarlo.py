@@ -29,6 +29,6 @@ class Player_MonteCarlo:
         play_writer.close()
 
     def log_node(self, play_writer, node):
-        play_writer.write_play(node.state, node.v(), node.n)
+        play_writer.write_play(node.state, node.v(), node.n, node.choices_q_norm())
         for c in node.children:
             self.log_node(play_writer, c)

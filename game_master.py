@@ -6,7 +6,7 @@ from player_dnn_regressor import Player_DNN_Regressor
 from player_one_ahead import Player_One_Ahead
 from player_random import Player_Random
 
-number_of_plays = 20
+number_of_plays = 100
 show_play = False
 show_final_play = False
 show_intermediate_result = False
@@ -64,7 +64,7 @@ def run():
 
 
 print("starting")
-for j in [1,7,10,20,30]:
+for j in [1,7,10,20,30,50]:
     print("j : " + str(j))
     # player1 = Player_Neural()
     # player2 = Player_Neural()

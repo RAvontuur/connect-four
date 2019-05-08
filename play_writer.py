@@ -10,12 +10,15 @@ class PlayWriter:
     def close(self):
         self.f.close
 
-    def write_play(self, env, value, visits):
+    def write_play(self, env, value, visits, q):
         self.f.write(env.get_game_state_short())
         self.f.write(",")
         self.f.write(str(visits))
         self.f.write(",")
         self.f.write(str(value))
+        for qi in q:
+            self.f.write(",")
+            self.f.write(str(qi))
         self.f.write("\n")
 
     def read_plays(self):
@@ -26,7 +29,7 @@ class PlayWriter:
                 el_exist = dict.get(lst[0])
                 if el_exist is None:
                     visits1 = 0.0
-                    el1 = ['0.0']
+                    el1 = ['0.0'] * 8
                 else:
                     visits1 = float(el_exist[0])
                     el1 = el_exist[1:]
