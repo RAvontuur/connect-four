@@ -21,6 +21,9 @@ class ConnectFourEnvironment():
     def __str__(self):
         return self.display()
 
+    def restart(self):
+        self.__init__()
+
     def get_game_state_short(self):
         return format(self.move_count, '02d') \
                + self.who_is_now_short() \

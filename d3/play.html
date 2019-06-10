@@ -7,27 +7,57 @@
 <svg style="width:1000px;height:1000px;">
 </svg>
 <script>
-    fetch('http://localhost:5000/greet')
-        .then(response => response.json())
-        .then(json => process(json));
+    restart()
+
+    function restart() {
+        fetch('http://localhost:5000')
+            .then(response => response.json())
+            .then(json => process(json));
+    }
+
+    function buttonClick(d, i) {
+        move(i % 7);
+    }
+
+    function move(action) {
+        fetch('http://localhost:5000/move/' + action)
+            .then(response => response.json())
+            .then(json => update(json));
+    }
 
     function symbolToColor(symbol) {
-        var obj = {"X": "red", "O": "yellow", " ": "none"};
+        var obj = {"X": "red", "O": "yellow", "_": "grey"};
         return obj[symbol];
     }
 
     function process(json) {
-        console.log(json);
 
         d3.select("svg")
             .selectAll("rect")
+            .data("1".split(""))
+            .enter()
+            .append("rect")
+            .attr("height", "600")
+            .attr("width", "700")
+            .style("fill", "blue")
+
+        d3.select("svg")
+            .selectAll("circle")
             .data(json.state.split(""))
             .enter()
             .append("circle")
             .attr("r", 45)
             .attr("cx", (d, i) => 50 + i % 7 * 100)
-            .attr("cy", (d, i) => 600 - 100 * Math.floor(i / 7))
-            .style("fill", d => symbolToColor(d));
+            .attr("cy", (d, i) => 550 - 100 * Math.floor(i / 7))
+            .style("fill", d => symbolToColor(d))
+            .on("click", buttonClick);
+    }
+
+    function update(json) {
+        symbols = json.state.split("");
+        d3.select("svg").selectAll("circle").each(function (d,i) {
+            d3.select(this).style("fill", symbolToColor(symbols[i]))
+        });
     }
 </script>
 </body>
