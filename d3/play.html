@@ -7,20 +7,35 @@
 <svg style="width:1000px;height:1000px;">
 </svg>
 <script>
-    restart()
+    refresh()
 
-    function restart() {
+    blocked = false;
+
+    function refresh() {
         fetch('http://localhost:5000')
             .then(response => response.json())
             .then(json => process(json));
     }
 
     function buttonClick(d, i) {
-        move(i % 7);
+        if (!blocked) {
+            move(i % 7);
+        }
     }
 
     function move(action) {
+        blocked = true;
+        d3.select("svg").select("text").text("wait.");
         fetch('http://localhost:5000/move/' + action)
+            .then(response => response.json())
+            .then(json => updateAndThink(json));
+    }
+
+    function updateAndThink(json) {
+        update(json);
+        blocked = true;
+        d3.select("svg").select("text").text("wait..");
+        fetch('http://localhost:5000/think')
             .then(response => response.json())
             .then(json => update(json));
     }
@@ -51,6 +66,17 @@
             .attr("cy", (d, i) => 550 - 100 * Math.floor(i / 7))
             .style("fill", d => symbolToColor(d))
             .on("click", buttonClick);
+
+        d3.select("svg")
+            .selectAll("text")
+            .data(["1".split("")])
+            .enter()
+            .append("text")
+            .attr("y", 620)
+            .attr("x", 50)
+            .text(json.msg);
+
+        blocked = false;
     }
 
     function update(json) {
@@ -58,6 +84,8 @@
         d3.select("svg").selectAll("circle").each(function (d,i) {
             d3.select(this).style("fill", symbolToColor(symbols[i]))
         });
+        d3.select("svg").select("text").text(json.msg);
+        blocked = false;
     }
 </script>
 </body>

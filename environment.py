@@ -24,6 +24,15 @@ class ConnectFourEnvironment():
     def restart(self):
         self.__init__()
 
+    def copy_from(self, env):
+        self.reward = env.reward
+        self.terminated = env.terminated
+        self.illegal_action = env.illegal_action
+        self.next_to_move = env.next_to_move
+        self.last_action = env.last_action
+        self.move_count = env.move_count
+        self.state = env.state
+
     def get_game_state_short(self):
         return format(self.move_count, '02d') \
                + self.who_is_now_short() \
