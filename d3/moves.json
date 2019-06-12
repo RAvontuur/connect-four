@@ -1,0 +1,61 @@
+{
+  "player": "_",
+  "moves": [
+    {"move": 0, "player": "X", "value": -0.2, "moves": [
+      {"move": 0, "player": "O", "value": 0},
+      {"move": 1, "player": "O", "value": 0},
+      {"move": 2, "player": "O", "value": 0},
+      {"move": 3, "player": "O", "value": 0},
+      {"move": 4, "player": "O", "value": 0},
+      {"move": 5, "player": "O", "value": 0}
+    ]},
+    {"move": 1, "player": "X", "value": 0, "moves": [
+      {"move": 0, "player": "O", "value": 0},
+      {"move": 1, "player": "O", "value": 0},
+      {"move": 2, "player": "O", "value": 0},
+      {"move": 3, "player": "O", "value": 0},
+      {"move": 4, "player": "O", "value": 0},
+      {"move": 5, "player": "O", "value": 0}
+    ]},
+    {"move": 2, "player": "X", "value": 0.1, "moves": [
+      {"move": 0, "player": "O", "value": 0},
+      {"move": 1, "player": "O", "value": 0},
+      {"move": 2, "player": "O", "value": 0},
+      {"move": 3, "player": "O", "value": 0},
+      {"move": 4, "player": "O", "value": 0},
+      {"move": 5, "player": "O", "value": 0}
+    ]},
+    {"move": 3, "player": "X", "value": 0.25, "moves": [
+      {"move": 0, "player": "O", "value": 0},
+      {"move": 1, "player": "O", "value": 0},
+      {"move": 2, "player": "O", "value": 0},
+      {"move": 3, "player": "O", "value": 0},
+      {"move": 4, "player": "O", "value": 0},
+      {"move": 5, "player": "O", "value": 0}
+    ]},
+    {"move": 4, "player": "X", "value": 0.1, "moves": [
+      {"move": 0, "player": "O", "value": 0},
+      {"move": 1, "player": "O", "value": 0},
+      {"move": 2, "player": "O", "value": 0},
+      {"move": 3, "player": "O", "value": 0},
+      {"move": 4, "player": "O", "value": 0},
+      {"move": 5, "player": "O", "value": 0}
+    ]},
+    {"move": 5, "player": "X", "value": 0, "moves": [
+      {"move": 0, "player": "O", "value": 0},
+      {"move": 1, "player": "O", "value": 0},
+      {"move": 2, "player": "O", "value": 0},
+      {"move": 3, "player": "O", "value": 0},
+      {"move": 4, "player": "O", "value": 0},
+      {"move": 5, "player": "O", "value": 0}
+    ]},
+    {"move": 6, "player": "X", "value": -0.2, "moves": [
+      {"move": 0, "player": "O", "value": 0},
+      {"move": 1, "player": "O", "value": 0},
+      {"move": 2, "player": "O", "value": 0},
+      {"move": 3, "player": "O", "value": 0},
+      {"move": 4, "player": "O", "value": 0},
+      {"move": 5, "player": "O", "value": 0}
+    ]}
+  ]
+}
