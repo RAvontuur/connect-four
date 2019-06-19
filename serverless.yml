@@ -1,0 +1,28 @@
+service: connectfour
+
+frameworkVersion: ">=1.2.0 <2.0.0"
+
+provider:
+  name: aws
+  region: eu-west-1
+  runtime: python3.6
+  memorySize: 1536
+  timeout: 20
+
+package:
+  exclude:
+    - venv/**
+    - dnn*/**
+    - dqn/**
+    - connect-four.iml
+    - mcts*.txt
+    - '*.ipynb'
+
+functions:
+  start:
+    handler: index.handler
+    events:
+    - http:
+        path: play/{action}
+        method: get
+        cors: true

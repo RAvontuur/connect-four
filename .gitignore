@@ -13,6 +13,12 @@ target/
 .DS_store
 */.DS_store
 
+valuenetwork/
+venv/
+dnn-*/
+dqn/
+mcts*.txt
+
 bleach/
 bleach*/
 enum/
@@ -22,7 +28,7 @@ google/
 html5lib/
 html5lib*/
 markdown/
-markdown*/
+Markdown*/
 numpy/
 numpy*/
 pkg_resources/
@@ -32,7 +38,7 @@ setuptools*/
 six*/
 tensor*/
 werkzeug/
-werkzeug*/
+Werkzeug*/
 protobuf*
 six.py
 

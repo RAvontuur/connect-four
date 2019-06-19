@@ -7,12 +7,17 @@
 <svg style="width:1000px;height:1000px;">
 </svg>
 <script>
+    API = 'https://jeoyngzv0h.execute-api.eu-west-1.amazonaws.com/dev/'
+    API_START = API + 'play/start'
+    API_MOVE = API + 'play/'
+    API_THINK = API + 'play/think'
+
     refresh()
 
     blocked = false;
 
     function refresh() {
-        fetch('http://localhost:5000')
+        fetch(API_START)
             .then(response => response.json())
             .then(json => process(json));
     }
@@ -26,7 +31,7 @@
     function move(action) {
         blocked = true;
         d3.select("svg").select("text").text("wait.");
-        fetch('http://localhost:5000/move/' + action)
+        fetch(API_MOVE + action)
             .then(response => response.json())
             .then(json => updateAndThink(json));
     }
@@ -35,7 +40,7 @@
         update(json);
         blocked = true;
         d3.select("svg").select("text").text("wait..");
-        fetch('http://localhost:5000/think')
+        fetch(API_THINK)
             .then(response => response.json())
             .then(json => update(json));
     }
