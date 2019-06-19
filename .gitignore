@@ -1,0 +1,38 @@
+# IDE #
+pom.xml.versionsBackup
+*.iml
+.idea/*
+*.class
+**/.idea/*
+
+
+# MVN #
+target/
+
+# Mac specific #
+.DS_store
+*/.DS_store
+
+bleach/
+bleach*/
+enum/
+enum*/
+external/
+google/
+html5lib/
+html5lib*/
+markdown/
+markdown*/
+numpy/
+numpy*/
+pkg_resources/
+protobuf*/
+setuptools/
+setuptools*/
+six*/
+tensor*/
+werkzeug/
+werkzeug*/
+protobuf*
+six.py
+
