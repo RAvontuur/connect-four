@@ -11,16 +11,22 @@ provider:
 
 package:
   exclude:
+    - .idea/**
+    - layer-*/**
     - venv/**
     - dnn*/**
     - dqn/**
     - connect-four.iml
     - mcts*.txt
     - '*.ipynb'
+    - valuenetwork/**
+
 
 functions:
   start:
     handler: index.handler
+    layers:
+    - arn:aws:lambda:eu-west-1:399891621064:layer:AWSLambda-Python36-SciPy1x:2
     events:
     - http:
         path: play/{action}

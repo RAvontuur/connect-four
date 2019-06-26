@@ -19,26 +19,6 @@ dnn-*/
 dqn/
 mcts*.txt
 
-bleach/
-bleach*/
-enum/
-enum*/
-external/
-google/
-html5lib/
-html5lib*/
-markdown/
-Markdown*/
-numpy/
-numpy*/
-pkg_resources/
-protobuf*/
-setuptools/
-setuptools*/
-six*/
-tensor*/
-werkzeug/
-Werkzeug*/
-protobuf*
-six.py
+layer-tensorflow
+.serverless
 
