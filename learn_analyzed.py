@@ -27,7 +27,7 @@ for item in dict_plays.items():
     terminated = item[0][4] == 'T'
     if visitv > 500:
             # or terminated:
-        env.set_game_result_short(item[0])
+        env.set_game_state_short(item[0])
         board = env.processState()
         labels = item[1][1:]
         board_lst.append(board)

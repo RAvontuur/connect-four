@@ -5,7 +5,7 @@ env = ConnectFourEnvironment()
 
 # test 1
 test = "01O4T-__OX___X__________________________________"
-env.set_game_result_short(test)
+env.set_game_state_short(test)
 
 assert(env.move_count == 1)
 assert(env.next_to_move == -1)
@@ -23,7 +23,7 @@ assert(round_trip == test)
 
 # test 2
 test = "31X TI__OX___X_________________________________O"
-env.set_game_result_short(test)
+env.set_game_state_short(test)
 
 assert(env.move_count == 31)
 assert(env.next_to_move == 1)
@@ -39,7 +39,7 @@ assert(round_trip == test)
 
 # test 2
 test = "00X   __OX___X_________________________________O"
-env.set_game_result_short(test)
+env.set_game_state_short(test)
 
 assert(env.move_count == 0)
 assert(env.next_to_move == 1)

@@ -6,7 +6,7 @@ provider:
   name: aws
   region: eu-west-1
   runtime: python3.6
-  memorySize: 1536
+  memorySize: 3000
   timeout: 20
   iamRoleStatements: # permissions for all of your functions can be set here
   - Effect: Allow

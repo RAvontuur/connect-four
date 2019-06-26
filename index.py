@@ -16,13 +16,13 @@ def handler(event, context):
     action = event['pathParameters']['action']
 
     if action is None:
-        play_id = str(np.random.randint(99999999))
-        return result_200(play_id)
+        start()
+        return result_200(None)
 
     actions = action.split("-")
     if len(actions) < 2:
-        play_id = str(np.random.randint(99999999))
-        return result_200(play_id)
+        start()
+        return result_200(None)
 
     action = actions[0]
     play_id = actions[1]
@@ -39,7 +39,8 @@ def handler(event, context):
     return result_200(play_id)
 
 def start():
-    print("start")
+    print("restart")
+    ENV.restart()
 
 def move(action):
     print("move %s" % (str(action)))
@@ -53,11 +54,6 @@ def think():
         env2, action = PLAYER.play(ENV)
         ENV.copy_from(env2)
 
-def restore_session(play_id):
-
-    print("restore session %s" % (play_id))
-
-
 def initialize():
     global ENV
     global PLAYER
@@ -69,9 +65,21 @@ def initialize():
         player_rollout = Player_Random()
         PLAYER = Player_MonteCarlo(10000, rollout_player=player_rollout)
 
+def restore_session(play_id):
+
+    print("restore session %s" % (play_id))
+
+    state = DYNAMO.read_play(play_id)
+    print("retrieved state %s" % (state))
+
+    ENV.set_game_state_short(state)
 
 def result_200(play_id):
-    DYNAMO.update_dynamo_play(play_id, ENV.get_game_state_short())
+
+    if play_id is None:
+        play_id = str(np.random.randint(99999999))
+
+    DYNAMO.update_play(play_id, ENV.get_game_state_short())
 
     return {
         'statusCode': 200,
@@ -92,9 +100,9 @@ def make_json(env, play_id):
 def who_is_now(env):
     s = ""
     if env.next_to_move == 1:
-        s += "X"
+        s += "RED"
     else:
-        s += "O"
+        s += "YELLOW"
 
     if env.terminated:
         if env.reward == 1:

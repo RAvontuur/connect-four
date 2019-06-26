@@ -41,7 +41,7 @@ class ConnectFourEnvironment():
                + self.reward_short() \
                + self.display_short()
 
-    def set_game_result_short(self, s):
+    def set_game_state_short(self, s):
         self.move_count = int(s[0:2])
         if s[2:3] == "X":
             self.next_to_move = 1
