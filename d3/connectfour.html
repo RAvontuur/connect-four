@@ -39,6 +39,10 @@
 
     function updateAndThink(json) {
         update(json);
+        think()
+    }
+
+    function think() {
         blocked = true;
         d3.select("svg").select("text").text("wait..");
         fetch(API_THINK + "-" + playId)
@@ -84,6 +88,10 @@
             .text(json.msg);
 
         blocked = false;
+
+        if (playId % 2 == 0) {
+            think()
+        }
     }
 
     function update(json) {
