@@ -15,6 +15,7 @@
     refresh()
 
     blocked = false;
+    playId = null;
 
     function refresh() {
         fetch(API_START)
@@ -31,7 +32,7 @@
     function move(action) {
         blocked = true;
         d3.select("svg").select("text").text("wait.");
-        fetch(API_MOVE + action)
+        fetch(API_MOVE + action + "-" + playId)
             .then(response => response.json())
             .then(json => updateAndThink(json));
     }
@@ -40,7 +41,7 @@
         update(json);
         blocked = true;
         d3.select("svg").select("text").text("wait..");
-        fetch(API_THINK)
+        fetch(API_THINK + "-" + playId)
             .then(response => response.json())
             .then(json => update(json));
     }
@@ -51,6 +52,7 @@
     }
 
     function process(json) {
+        playId = json.playId;
 
         d3.select("svg")
             .selectAll("rect")
