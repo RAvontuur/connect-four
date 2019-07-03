@@ -17,6 +17,7 @@ class ConnectFourEnvironment():
         self.last_action = None
         self.move_count = 0
         self.state = np.zeros(shape=(7, 6))
+        self.connect_four = []
 
     def __str__(self):
         return self.display()
@@ -32,6 +33,7 @@ class ConnectFourEnvironment():
         self.last_action = env.last_action
         self.move_count = env.move_count
         self.state = env.state
+        self.connect_four = env.connect_four
 
     def get_game_state_short(self):
         return format(self.move_count, '02d') \
@@ -200,15 +202,39 @@ class ConnectFourEnvironment():
                 break
 
         if left + right + 1 >= 4:
+            left_pos = action - left + (7 * action_row)
+            self.connect_four = []
+            self.connect_four.append(left_pos)
+            self.connect_four.append(left_pos + 1)
+            self.connect_four.append(left_pos + 2)
+            self.connect_four.append(left_pos + 3)
             return True
 
         if up + down + 1 >= 4:
+            down_pos = action + (7 * (action_row - down))
+            self.connect_four = []
+            self.connect_four.append(down_pos)
+            self.connect_four.append(down_pos + 7)
+            self.connect_four.append(down_pos + 14)
+            self.connect_four.append(down_pos + 21)
             return True
 
         if left_up + right_down + 1 >= 4:
+            right_down_pos = action + right_down + (7 * (action_row - right_down))
+            self.connect_four = []
+            self.connect_four.append(right_down_pos)
+            self.connect_four.append(right_down_pos + 6)
+            self.connect_four.append(right_down_pos + 12)
+            self.connect_four.append(right_down_pos + 18)
             return True
 
         if left_down + right_up + 1 >= 4:
+            left_down_pos = action - left_down + (7 * (action_row - left_down))
+            self.connect_four = []
+            self.connect_four.append(left_down_pos)
+            self.connect_four.append(left_down_pos + 8)
+            self.connect_four.append(left_down_pos + 16)
+            self.connect_four.append(left_down_pos + 24)
             return True
 
         return False

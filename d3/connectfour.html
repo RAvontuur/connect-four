@@ -100,6 +100,21 @@
             d3.select(this).style("fill", symbolToColor(symbols[i]))
         });
         d3.select("svg").select("text").text(json.msg);
+
+        var u = d3.select("svg")
+            .selectAll("circle.connected")
+            .data(json.connect_four)
+
+        u.enter()
+            .append("circle")
+            .attr("class", "connected")
+            .attr("r", 5)
+            .attr("cx", d => 50 + d % 7 * 100)
+            .attr("cy", d => 550 - 100 * Math.floor(d / 7))
+            .style("fill", "black")
+
+        u.exit().remove()
+
         blocked = false;
     }
 </script>

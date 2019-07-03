@@ -94,6 +94,7 @@ def make_json(env, play_id):
     x["state"] = env.display_short()
     x["msg"] = who_is_now(env)
     x["terminated"] = env.terminated
+    x["connect_four"] = env.connect_four
     x["playId"] = play_id
     return json.dumps(x)
 
