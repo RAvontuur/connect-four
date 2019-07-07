@@ -21,14 +21,15 @@ class Player_MonteCarlo:
         env  = best_node.state
         return env, env.last_action
 
-    def log(self, file_name):
-
+    def log_to_file(self, file_name):
         play_writer = PlayWriter(file_name, write=True)
+        self.log(play_writer)
 
-        self.log_node(play_writer, self._mcts.root)
+    def log(self, play_writer):
+        self.log_node(play_writer, self._mcts.root, None)
         play_writer.close()
 
-    def log_node(self, play_writer, node):
-        play_writer.write_play(node.state, node.v(), node.n, node.choices_q_norm())
+    def log_node(self, play_writer, node, parent):
+        play_writer.write_play(node.state, node.v(), node.n, node.choices_q_norm(), parent)
         for c in node.children:
-            self.log_node(play_writer, c)
+            self.log_node(play_writer, c, node)
