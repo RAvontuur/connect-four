@@ -33,3 +33,6 @@ class Player_MonteCarlo:
         play_writer.write_play(node.state, node.v(), node.n, node.choices_q_norm(), parent)
         for c in node.children:
             self.log_node(play_writer, c, node)
+
+    def analyzed_result(self):
+        return self._mcts.root.analyzed_result

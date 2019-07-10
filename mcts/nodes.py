@@ -9,13 +9,26 @@ class MonteCarloTreeSearchNode():
         self.state = state
         self.parent = parent
         self.children = []
-        self._number_of_visits = 0.
         self._results = defaultdict(int)
         self.untried_actions = self.state.get_legal_actions()
+        self._number_of_visits = 0.
+
+        if self.state.is_game_over():
+            self.analyzed_result = self.state.reward
+        else:
+            self.analyzed_result = None
+
         random.shuffle(self.untried_actions)
 
     def is_fully_expanded(self):
         return len(self.untried_actions) == 0
+
+    def all_analyzed(self):
+        for c in self.children:
+            if c.analyzed_result is None:
+                return False
+
+        return True
 
     def choices_q_norm(self):
         result = [0.0] * 7
@@ -66,10 +79,6 @@ class MonteCarloTreeSearchNode():
     @property
     def n(self):
         return self._number_of_visits
-
-    def is_terminal_node(self):
-        return self.state.is_game_over()
-
 
     def backpropagate(self, result):
         self._number_of_visits += 1.
