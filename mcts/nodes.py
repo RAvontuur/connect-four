@@ -57,8 +57,6 @@ class MonteCarloTreeSearchNode():
         ]
 
     def best_child(self, c_param=1.4):
-        # print(self.choices_q())
-        # print(self.choices_n())
         weights = self.choices_weights(c_param)
         return self.children[np.argmax(weights)]
 

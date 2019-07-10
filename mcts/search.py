@@ -8,17 +8,21 @@ class MonteCarloTreeSearch:
         self.player = player
 
 
-    def best_child(self, simulations_number):
-        for i in range(0, simulations_number):
+    def best_child(self, number_of_rollouts):
+        for i in range(0, number_of_rollouts):
+            node = self.tree_policy()
+            while node.analyzed_result is not None:
+                # increase visits without rollouts
+                node.backpropagate(node.analyzed_result)
+                if self.root.analyzed_result is not None:
+                    break
+                node = self.tree_policy()
+
             if self.root.analyzed_result is not None:
                 print("Fully analyzed after: " + str(i))
                 break
 
-            node = self.tree_policy()
-            if node.analyzed_result is None:
-                result = self.rollout(node)
-            else:
-                result = node.analyzed_result
+            result = self.rollout(node)
             node.backpropagate(result)
 
         # exploitation only
@@ -53,7 +57,7 @@ class MonteCarloTreeSearch:
                     # it will not be better then this
                     current_node.analyzed_result = -best_child.analyzed_result
                 else:
-                    # continue exploring the best move (= best child)
+                    # continue exploring the best move (= the best child)
                     current_node = best_child
 
         return current_node
