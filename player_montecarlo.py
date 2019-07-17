@@ -35,4 +35,16 @@ class Player_MonteCarlo:
             self.log_node(play_writer, c, node)
 
     def analyzed_result(self):
-        return self._mcts.root.analyzed_result
+        if self._mcts is None:
+            return None
+        return self._mcts.root.analyzed_result * self._mcts.root.state.next_to_move
+
+    def visits(self):
+        if self._mcts is None:
+            return None
+        return self._mcts.root.n
+
+    def choices(self):
+        if self._mcts is None:
+            return None
+        return self._mcts.root.choices_q_norm()

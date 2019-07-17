@@ -6,7 +6,7 @@ class PlayWriterJson:
         self.dict = {}
 
     def close(self):
-        assert(True)
+        pass
 
     def write_play(self, env, value, visits, q, parent_node):
 

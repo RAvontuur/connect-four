@@ -36,7 +36,7 @@ def handler(event, context):
     else:
         move(int(action))
 
-    return result_200(play_id)
+    return result_200(play_id, action)
 
 def start():
     print("restart")
@@ -53,6 +53,7 @@ def think():
     if not ENV.terminated:
         env2, action = PLAYER.play(ENV)
         ENV.copy_from(env2)
+        print("visits: " + str(PLAYER.visits()))
 
 def initialize():
     global ENV
@@ -86,19 +87,24 @@ def result_200(play_id):
         'headers': {
             'Access-Control-Allow-Origin': '*'
         },
-        'body': make_json(ENV, play_id)
+        'body': make_json(ENV, PLAYER, play_id)
     }
 
-def make_json(env, play_id):
+def make_json(env, player, play_id, action):
     x = {}
     x["state"] = env.display_short()
-    x["msg"] = who_is_now(env)
+    x["msg"] = who_is_now(env, player, action)
     x["terminated"] = env.terminated
     x["connect_four"] = env.connect_four
     x["playId"] = play_id
+
+    if action == "think":
+        x["weights"] = player.visits()
+        x["visits"] = player.visits()
+        x["analyzed_result"] = player.analyzed_result()
     return json.dumps(x)
 
-def who_is_now(env):
+def who_is_now(env, player, action):
     s = ""
     if env.next_to_move == 1:
         s += "RED"
@@ -116,5 +122,9 @@ def who_is_now(env):
             s += " after illegal move"
     else:
         s += " is playing now"
-
+        if action == "think" and player.analyzed_result() is not None:
+            if player.analyzed_result() == 1:
+                s += " (YELLOW wins)"
+            else:
+                s += " (RED wins)"
     return s
