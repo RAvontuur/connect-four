@@ -79,11 +79,24 @@
             .on("click", buttonClick);
 
         d3.select("svg")
+            .selectAll("rect.choices")
+            .data("0123456".split(""))
+            .enter()
+            .append("rect")
+            .attr("class", "choices")
+            .attr("x", (d, i) => 5 + i * 100)
+            .attr("y", 650)
+            .attr("height", 20)
+            .attr("width", 90)
+            .style("fill", "gray")
+
+
+        d3.select("svg")
             .selectAll("text")
             .data(["1".split("")])
             .enter()
             .append("text")
-            .attr("y", 620)
+            .attr("y", 625)
             .attr("x", 50)
             .text(json.msg);
 
@@ -114,6 +127,18 @@
             .style("fill", "black")
 
         u.exit().remove()
+
+        if (json.choices) {
+
+            var rgRamp = d3.scaleLinear().interpolate(d3.interpolateHsl)
+                .domain([-1,1]).range(["red", "green"])
+
+            d3.select("svg").selectAll("rect.choices").each(function (d,i) {
+                d3.select(this)
+                    .attr("height", 20 + 19 * json.choices[i])
+                    .style("fill", rgRamp(json.choices[i]))
+            });
+        }
 
         blocked = false;
     }

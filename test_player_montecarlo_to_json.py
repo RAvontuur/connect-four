@@ -15,7 +15,7 @@ print("visits: " + str(PLAYER.visits()))
 print("choices: " + str(PLAYER.choices()))
 play_writer = PlayWriterJson()
 PLAYER.log(play_writer)
-
+assert(PLAYER.analyzed_result() is None)
 # print(play_writer.get_json())
 
 print("")

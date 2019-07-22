@@ -31,7 +31,8 @@ class MonteCarloTreeSearchNode():
         return True
 
     def choices_q_norm(self):
-        result = [0.0] * 7
+        # by default: reward of an illegal move
+        result = [-1.0] * 7
         for c in self.children:
             result[c.state.last_action] = -c.q / c.n
         return result

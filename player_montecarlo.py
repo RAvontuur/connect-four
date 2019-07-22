@@ -37,6 +37,8 @@ class Player_MonteCarlo:
     def analyzed_result(self):
         if self._mcts is None:
             return None
+        if self._mcts.root.analyzed_result is None:
+            return None
         return self._mcts.root.analyzed_result * self._mcts.root.state.next_to_move
 
     def visits(self):

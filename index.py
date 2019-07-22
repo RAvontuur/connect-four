@@ -17,12 +17,12 @@ def handler(event, context):
 
     if action is None:
         start()
-        return result_200(None)
+        return result_200(None, "start")
 
     actions = action.split("-")
     if len(actions) < 2:
         start()
-        return result_200(None)
+        return result_200(None, "start")
 
     action = actions[0]
     play_id = actions[1]
@@ -75,7 +75,7 @@ def restore_session(play_id):
 
     ENV.set_game_state_short(state)
 
-def result_200(play_id):
+def result_200(play_id, action):
 
     if play_id is None:
         play_id = str(np.random.randint(99999999))
@@ -87,7 +87,7 @@ def result_200(play_id):
         'headers': {
             'Access-Control-Allow-Origin': '*'
         },
-        'body': make_json(ENV, PLAYER, play_id)
+        'body': make_json(ENV, PLAYER, play_id, action)
     }
 
 def make_json(env, player, play_id, action):
@@ -99,7 +99,7 @@ def make_json(env, player, play_id, action):
     x["playId"] = play_id
 
     if action == "think":
-        x["weights"] = player.visits()
+        x["choices"] = player.choices()
         x["visits"] = player.visits()
         x["analyzed_result"] = player.analyzed_result()
     return json.dumps(x)
