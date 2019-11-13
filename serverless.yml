@@ -11,38 +11,6 @@ custom:
     - bucketName: ${self:custom.siteName}
       localDir: d3
 
-resources:
-  Resources:
-    StaticSite:
-      Type: AWS::S3::Bucket
-      Properties:
-        AccessControl: PublicRead
-        BucketName: ${self:custom.siteName}
-        WebsiteConfiguration:
-          IndexDocument: connectfour.html
-    StaticSiteS3BucketPolicy:
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        Bucket:
-          Ref: StaticSite
-        PolicyDocument:
-          Statement:
-          - Sid: PublicReadGetObject
-            Effect: Allow
-            Principal: "*"
-            Action:
-            - s3:GetObject
-            Resource:
-              Fn::Join: [
-                "", [
-                "arn:aws:s3:::",
-                {
-                  "Ref": "StaticSite"
-                },
-                "/*"
-              ]
-              ]
-
 provider:
   name: aws
   region: eu-west-1
@@ -64,15 +32,7 @@ provider:
 package:
   exclude:
     - .idea/**
-    - layer-*/**
-    - venv/**
-    - dnn*/**
-    - dqn/**
     - connect-four.iml
-    - mcts*.txt
-    - '*.ipynb'
-    - valuenetwork/**
-
 
 functions:
   start:

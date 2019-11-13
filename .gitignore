@@ -13,12 +13,5 @@ target/
 .DS_store
 */.DS_store
 
-valuenetwork/
-venv/
-dnn-*/
-dqn/
-mcts*.txt
-
-layer-tensorflow
 .serverless
 
