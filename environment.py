@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 
 class ConnectFourEnvironment():
 
@@ -18,12 +19,21 @@ class ConnectFourEnvironment():
         self.move_count = 0
         self.state = np.zeros(shape=(7, 6))
         self.connect_four = []
+        self.logger = None
+
+    def copy(self):
+        result = ConnectFourEnvironment()
+        result.copy_from(self)
+        return result
 
     def __str__(self):
         return self.display()
 
     def restart(self):
         self.__init__()
+
+    def set_logger(self, logger):
+        self.logger = logger
 
     def copy_from(self, env):
         self.reward = env.reward
@@ -32,8 +42,9 @@ class ConnectFourEnvironment():
         self.next_to_move = env.next_to_move
         self.last_action = env.last_action
         self.move_count = env.move_count
-        self.state = env.state
+        self.state = copy.deepcopy(env.state)
         self.connect_four = env.connect_four
+        self.logger = env.logger
 
     def get_game_state_short(self):
         return format(self.move_count, '02d') \
@@ -107,6 +118,8 @@ class ConnectFourEnvironment():
         self.next_to_move = -self.next_to_move
         self.reward = -result
         self.move_count += 1
+        if self.logger is not None:
+            self.logger.log(self)
         return self
 
     # private
@@ -324,6 +337,18 @@ class ConnectFourEnvironment():
                     s += "X"
                 if self.state[col][row] == -1:
                     s += "O"
+        return s
+
+    def display_csv(self):
+        s = ""
+        for row in range(6):
+            for col in range(7):
+                if self.state[col][row] == 0:
+                    s += ", 0, 0"
+                if self.state[col][row] == 1:
+                    s += ", 1, 0"
+                if self.state[col][row] == -1:
+                    s += ", 0, 1"
         return s
 
     def parse_state(self, s):

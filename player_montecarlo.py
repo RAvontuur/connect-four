@@ -36,3 +36,16 @@ class Player_MonteCarlo:
         if self._mcts is None:
             return None
         return self._mcts.root.choices_q_norm()
+
+    def log_to_file(self, file_name):
+        play_writer = PlayWriter(file_name, write=True)
+        self.log(play_writer)
+
+    def log(self, play_writer):
+        self.log_node(play_writer, self._mcts.root, None)
+        play_writer.close()
+
+    def log_node(self, play_writer, node, parent):
+        play_writer.write_play(node.state, node.v(), node.n, node.choices_q_norm(), parent)
+        for c in node.children:
+            self.log_node(play_writer, c, node)
