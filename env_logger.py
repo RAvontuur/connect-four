@@ -8,12 +8,12 @@ class EnvLogger:
 
     def log(self, env):
         if env.game_result(1) == 1:
-            self.f.write("1, ")
+            self.f.write(str(env.connect_four_count) + ", ")
         else:
             self.f.write("0, ")
 
         if env.game_result(-1) == 1:
-            self.f.write("1")
+            self.f.write(str(env.connect_four_count))
         else:
             self.f.write("0")
 

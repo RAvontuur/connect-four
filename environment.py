@@ -19,6 +19,7 @@ class ConnectFourEnvironment():
         self.move_count = 0
         self.state = np.zeros(shape=(7, 6))
         self.connect_four = []
+        self.connect_four_count = 0
         self.logger = None
 
     def copy(self):
@@ -44,6 +45,8 @@ class ConnectFourEnvironment():
         self.move_count = env.move_count
         self.state = copy.deepcopy(env.state)
         self.connect_four = env.connect_four
+        self.connect_four_count = env.connect_four_count
+
         self.logger = env.logger
 
     def get_game_state_short(self):
@@ -216,12 +219,20 @@ class ConnectFourEnvironment():
 
         if left + right + 1 >= 4:
             left_pos = action - left + (7 * action_row)
-            self.connect_four = []
             self.connect_four.append(left_pos)
             self.connect_four.append(left_pos + 1)
             self.connect_four.append(left_pos + 2)
             self.connect_four.append(left_pos + 3)
-            return True
+            self.connect_four_count+=1
+            if left + right + 1 >= 5:
+                self.connect_four_count+=1
+                self.connect_four.append(left_pos + 4)
+            if left + right + 1 >= 6:
+                self.connect_four_count+=1
+                self.connect_four.append(left_pos + 5)
+            if left + right + 1 >= 7:
+                self.connect_four_count+=1
+                self.connect_four.append(left_pos + 6)
 
         if up + down + 1 >= 4:
             down_pos = action + (7 * (action_row - down))
@@ -230,7 +241,7 @@ class ConnectFourEnvironment():
             self.connect_four.append(down_pos + 7)
             self.connect_four.append(down_pos + 14)
             self.connect_four.append(down_pos + 21)
-            return True
+            self.connect_four_count+=1
 
         if left_up + right_down + 1 >= 4:
             right_down_pos = action + right_down + (7 * (action_row - right_down))
@@ -239,7 +250,13 @@ class ConnectFourEnvironment():
             self.connect_four.append(right_down_pos + 6)
             self.connect_four.append(right_down_pos + 12)
             self.connect_four.append(right_down_pos + 18)
-            return True
+            self.connect_four_count+=1
+            if left_up + right_down + 1 >= 5:
+                self.connect_four.append(right_down_pos + 24)
+                self.connect_four_count+=1
+            if left_up + right_down + 1 >= 6:
+                self.connect_four.append(right_down_pos + 30)
+                self.connect_four_count+=1
 
         if left_down + right_up + 1 >= 4:
             left_down_pos = action - left_down + (7 * (action_row - left_down))
@@ -248,9 +265,15 @@ class ConnectFourEnvironment():
             self.connect_four.append(left_down_pos + 8)
             self.connect_four.append(left_down_pos + 16)
             self.connect_four.append(left_down_pos + 24)
-            return True
+            self.connect_four_count+=1
+            if left_down + right_up + 1 >= 5:
+                self.connect_four.append(left_down_pos + 32)
+                self.connect_four_count+=1
+            if left_down + right_up + 1 >= 6:
+                self.connect_four.append(left_down_pos + 40)
+                self.connect_four_count+=1
 
-        return False
+        return self.connect_four_count > 0
 
 
     def all_occupied(self):

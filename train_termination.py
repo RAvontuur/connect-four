@@ -74,8 +74,7 @@ model.add(
 model.add(
     layers.Dense(2,
                  kernel_initializer=tf.constant_initializer(kernel2),
-                 bias_initializer=tf.constant_initializer(bias2),
-                 activation=tf.keras.layers.ReLU(max_value=1.0))
+                 bias_initializer=tf.constant_initializer(bias2))
 )
 
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),

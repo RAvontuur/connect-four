@@ -8,7 +8,7 @@ env_logger = EnvLogger("rollouts.csv")
 
 player_rollout = Player_Random()
 
-print("test 1: start from the beginning")
+print("start")
 ENV = ConnectFourEnvironment()
 ENV.set_logger(env_logger)
 
