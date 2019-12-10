@@ -91,8 +91,8 @@ model.summary()
 # with open(file_name, newline='') as csvfile:
 #     reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
 #     for row in reader:
-#         labels_train.append(row[0:2])
-#         boards_train.append(row[2:86])
+#         labels_train.append(row[84:86])
+#         boards_train.append(row[0:84])
 #
 # print(len(labels_train))
 #

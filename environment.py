@@ -96,6 +96,10 @@ class ConnectFourEnvironment():
         return free_columns
 
     def move(self, action):
+
+        if self.logger is not None:
+            self.logger.log_before_action(self, action)
+
         self.last_action = action
 
         # Illegal move -- too high stack of squares
@@ -372,7 +376,7 @@ class ConnectFourEnvironment():
                     s += ", 1, 0"
                 if self.state[col][row] == -1:
                     s += ", 0, 1"
-        return s
+        return s[2:]
 
     def parse_state(self, s):
         self.state = np.zeros(shape=(7, 6))
