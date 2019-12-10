@@ -4,7 +4,8 @@ from player_random import Player_Random
 from play_writer_json import PlayWriterJson
 from env_logger import EnvLogger
 
-env_logger = EnvLogger("rollouts.csv")
+env_logger = EnvLogger("rollouts.csv",
+                       [EnvLogger.LOG_BOARD_AFTER_ACTION, EnvLogger.LOG_CONNECT_FOUR_LABELS])
 
 player_rollout = Player_Random()
 

@@ -13,24 +13,20 @@ def run(file_name):
     with open(file_name, newline='') as csvfile:
         reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
         for row in reader:
-            labels_train.append(row[0:2])
-            boards_train.append(row[2:86])
+            labels_train.append(row[84:86])
+            boards_train.append(row[0:84])
 
     print(len(labels_train))
 
-    size = 1000
+    size = len(labels_train)
 
-    idxs = np.random.randint(len(labels_train), size=size)
-    # idxs = range(size)
-    boards_predict = [boards_train[i] for i in idxs]
-    labels_predict = [labels_train[i] for i in idxs]
-
-    data_predict = np.asarray(boards_predict)
-    labels_predict = np.asarray(labels_predict)
+    data_predict = np.asarray(boards_train)
+    labels_predict = np.asarray(labels_train)
 
     # model = keras.models.load_model('connect-four-positions-138.h5')
-    model = keras.models.load_model('connect-four-positions-138-no-activation-weights.h5')
+    # model = keras.models.load_model('connect-four-positions-138-no-activation-weights.h5')
     # model = keras.models.load_model('connect-four-positions-138-analytic-weights.h5', custom_objects={'ReLU': layers.ReLU})
+    model = keras.models.load_model('connect-four-positions-138-analytic-weights.h5')
     result = model.predict(data_predict, batch_size=32)
 
     def plot(i):
@@ -44,6 +40,7 @@ def run(file_name):
         print()
 
     j = 0
+    plotted = 0
     for i in range(size):
         p = labels_predict[i]
         l = result[i]
@@ -51,7 +48,9 @@ def run(file_name):
         if (abs(p[0] - l[0]) < 0.5) and (abs(p[1] - l[1]) < 0.5):
             j+=1
         else:
-            plot(i)
+            if plotted < 10:
+                plot(i)
+                plotted += 1
 
     print(str(j) + " good predictions, out of " + str(size))
 

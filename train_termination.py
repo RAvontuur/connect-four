@@ -99,5 +99,5 @@ model.summary()
 # data = np.asarray(boards_train)
 # labels = np.asarray(labels_train)
 #
-# model.fit(data, labels, epochs=300, batch_size=128)
+# model.fit(data, labels, epochs=100, batch_size=128)
 model.save("connect-four-positions-138-analytic-weights.h5")

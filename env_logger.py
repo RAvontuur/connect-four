@@ -23,7 +23,7 @@ class EnvLogger:
         if EnvLogger.LOG_BOARD_BEFORE_ACTION in self.settings:
             self.f.write(env.display_csv())
             self.f.write(", ")
-        if EnvLogger.LOG_ACTION:
+        if EnvLogger.LOG_ACTION in self.settings:
             if env.next_to_move == 1:
                 str_action(self.f, 2 * action)
             else:
