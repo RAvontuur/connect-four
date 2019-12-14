@@ -15,6 +15,8 @@ with open('rollouts.csv', newline='') as csvfile:
             # rows.append(row_buf[np.random.randint(len(row_buf)-1, size=1)[0]])
             # rows.append(row_buf[np.random.randint(len(row_buf)-1, size=1)[0]])
             # rows.append(row_buf[np.random.randint(len(row_buf)-1, size=1)[0]])
+            if len(row_buf) > 1:
+                rows.append(row_buf[np.random.randint(len(row_buf)-1, size=1)[0]])
             if len(row_buf) > 0:
                 rows.append(row_buf[len(row_buf)-1])
             rows.append(row)

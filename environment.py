@@ -371,11 +371,11 @@ class ConnectFourEnvironment():
         for row in range(6):
             for col in range(7):
                 if self.state[col][row] == 0:
-                    s += ", 0, 0"
+                    s += ", -1, -1"
                 if self.state[col][row] == 1:
-                    s += ", 1, 0"
+                    s += ", 1, -1"
                 if self.state[col][row] == -1:
-                    s += ", 0, 1"
+                    s += ", -1, 1"
         return s[2:]
 
     def parse_state(self, s):

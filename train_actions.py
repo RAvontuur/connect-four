@@ -12,10 +12,6 @@ model.add(
     layers.Dense(84, input_shape=(98,),
                  activation='tanh')
 )
-model.add(
-    layers.Dense(84,
-                 activation='relu')
-)
 
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
               loss='mse',
