@@ -9,7 +9,7 @@ from tensorflow.keras import layers
 
 model = tf.keras.Sequential()
 model.add(
-    layers.Dense(7, input_shape=(84,),
+    layers.Dense(14, input_shape=(84,),
                        activation='relu')
 )
 
@@ -19,7 +19,7 @@ model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
 
 model.summary()
 
-file_name = 'rollouts-valid-moves-filtered.csv'
+file_name = 'rollouts-valid-moves.csv'
 
 boards_train = []
 labels_train = []
@@ -27,7 +27,7 @@ labels_train = []
 with open(file_name, newline='') as csvfile:
     reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
     for row in reader:
-        labels_train.append(row[84:91])
+        labels_train.append(row[84:98])
         boards_train.append(row[0:84])
 
 print(len(labels_train))

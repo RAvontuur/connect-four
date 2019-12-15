@@ -14,7 +14,7 @@ def run(file_name):
         reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
         for row in reader:
             boards_train.append(row[0:84])
-            labels_train.append(row[84:91])
+            labels_train.append(row[84:98])
 
     print(len(labels_train))
 
@@ -36,9 +36,9 @@ def run(file_name):
         print(data_predict[i, 70:84])
         print()
 
-        print(labels_predict[i, 0:7])
+        print(labels_predict[i, 0:14])
         print()
-        print(result[i, 0:7])
+        print(result[i, 0:14])
         print()
         print()
 

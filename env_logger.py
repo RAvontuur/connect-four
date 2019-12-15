@@ -5,13 +5,16 @@ def str_action(f, action):
         else:
             f.write("0, ")
 
-def str_valid_moves(f, moves):
+def str_valid_moves(f, moves, next_to_move):
     v = []
-    for i in range(7):
+    for i in range(14):
         v.append(0)
 
     for move in moves:
-        v[move] = 1
+        if next_to_move == 1:
+            v[2*move] = 1
+        else:
+            v[2*move+1] = 1
 
     first = True
     for i in v:
@@ -26,7 +29,8 @@ class EnvLogger:
     LOG_ACTION = 1
     LOG_BOARD_AFTER_ACTION = 2
     LOG_CONNECT_FOUR_LABELS = 3
-    LOG_VALID_MOVES = 4
+    LOG_VALID_MOVES_BEFORE = 4
+    LOG_VALID_MOVES_AFTER = 5
 
     def __init__(self, file_name, settings = [LOG_BOARD_AFTER_ACTION, LOG_CONNECT_FOUR_LABELS]):
         self.f = open(file_name,"w+")
@@ -40,8 +44,8 @@ class EnvLogger:
             self.f.write(env.display_csv())
             self.f.write(", ")
 
-        if EnvLogger.LOG_VALID_MOVES in self.settings:
-            str_valid_moves(self.f, env.get_legal_actions())
+        if EnvLogger.LOG_VALID_MOVES_BEFORE in self.settings:
+            str_valid_moves(self.f, env.get_legal_actions(), env.next_to_move)
 
         if EnvLogger.LOG_ACTION in self.settings:
             if env.next_to_move == 1:
@@ -65,5 +69,10 @@ class EnvLogger:
                 self.f.write(str(env.connect_four_count))
             else:
                 self.f.write("0")
+            if EnvLogger.LOG_VALID_MOVES_AFTER in self.settings:
+                self.f.write(", ")
+
+        if EnvLogger.LOG_VALID_MOVES_AFTER in self.settings:
+            str_valid_moves(self.f, env.get_legal_actions(), env.next_to_move)
 
         self.f.write("\n")

@@ -5,7 +5,7 @@ from play_writer_json import PlayWriterJson
 from env_logger import EnvLogger
 
 env_logger = EnvLogger("rollouts-valid-moves.csv",
-                       [EnvLogger.LOG_BOARD_BEFORE_ACTION, EnvLogger.LOG_VALID_MOVES])
+                       [EnvLogger.LOG_BOARD_BEFORE_ACTION, EnvLogger.LOG_VALID_MOVES_BEFORE])
 
 player_rollout = Player_Random()
 
@@ -13,7 +13,7 @@ print("start")
 ENV = ConnectFourEnvironment()
 ENV.set_logger(env_logger)
 
-PLAYER = Player_MonteCarlo(50000, rollout_player=player_rollout)
+PLAYER = Player_MonteCarlo(10000, rollout_player=player_rollout)
 env2, action = PLAYER.play(ENV)
 
 assert(env2.next_to_move == -1)
