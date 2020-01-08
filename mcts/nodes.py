@@ -34,7 +34,7 @@ class MonteCarloTreeSearchNode():
         # by default: reward of an illegal move
         result = [-1.0] * 7
         for c in self.children:
-            result[c.state.last_action] = -c.q / c.n
+            result[c.state.get_last_action()] = -c.q / c.n
         return result
 
 

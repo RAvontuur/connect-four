@@ -21,13 +21,13 @@ ENV = ConnectFourEnvironment()
 # ENV.set_logger(env_logger)
 
 
-PLAYER = Player_MonteCarlo(20*128*16, rollout_player=player_rollout)
+PLAYER = Player_MonteCarlo(10000, rollout_player=player_rollout)
 start = time.time()
 env2, action = PLAYER.play(ENV)
 end = time.time()
 
 print("elapsed: "  + str(end - start))
-assert(env2.next_to_move == -1)
+assert(env2.get_player() == -1)
 print("visits: " + str(PLAYER.visits()))
 print("choices: " + str(PLAYER.choices()))
 # play_writer = PlayWriterJson()

@@ -106,7 +106,7 @@ def make_json(env, player, play_id, action):
 
 def who_is_now(env, player, action):
     s = ""
-    if env.next_to_move == 1:
+    if env.get_player() == 1:
         s += "RED"
     else:
         s += "YELLOW"

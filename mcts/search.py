@@ -63,7 +63,7 @@ class MonteCarloTreeSearch:
         return current_node
 
     def rollout(self, node):
-        next_to_move = node.state.next_to_move
+        next_to_move = node.state.get_player()
         current_rollout_state = node.state.copy()
         while not current_rollout_state.is_game_over():
             current_rollout_state, _ = self.player.play(current_rollout_state)

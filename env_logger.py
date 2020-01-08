@@ -5,13 +5,13 @@ def str_action(f, action):
         else:
             f.write("0, ")
 
-def str_valid_moves(f, moves, next_to_move):
+def str_valid_moves(f, moves, player):
     v = []
     for i in range(14):
         v.append(0)
 
     for move in moves:
-        if next_to_move == 1:
+        if player == 1:
             v[2*move] = 1
         else:
             v[2*move+1] = 1
@@ -45,10 +45,10 @@ class EnvLogger:
             self.f.write(", ")
 
         if EnvLogger.LOG_VALID_MOVES_BEFORE in self.settings:
-            str_valid_moves(self.f, env.get_legal_actions(), env.next_to_move)
+            str_valid_moves(self.f, env.get_legal_actions(), env.get_player())
 
         if EnvLogger.LOG_ACTION in self.settings:
-            if env.next_to_move == 1:
+            if env.get_player() == 1:
                 str_action(self.f, 2 * action)
             else:
                 str_action(self.f, 2 * action + 1)
@@ -73,6 +73,6 @@ class EnvLogger:
                 self.f.write(", ")
 
         if EnvLogger.LOG_VALID_MOVES_AFTER in self.settings:
-            str_valid_moves(self.f, env.get_legal_actions(), env.next_to_move)
+            str_valid_moves(self.f, env.get_legal_actions(), env.get_player())
 
         self.f.write("\n")

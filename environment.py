@@ -11,10 +11,10 @@ class ConnectFourEnvironment():
 
 
     def __init__(self):
-        self.reward = 0
+        self.reward = ConnectFourEnvironment.NOT_LOSS
         self.terminated = False
         self.illegal_action = False
-        self.next_to_move = 1
+        self.player = 1
         self.last_action = None
         self.move_count = 0
         self.state = np.zeros(shape=(7, 6))
@@ -40,7 +40,7 @@ class ConnectFourEnvironment():
         self.reward = env.reward
         self.terminated = env.terminated
         self.illegal_action = env.illegal_action
-        self.next_to_move = env.next_to_move
+        self.player = env.player
         self.last_action = env.last_action
         self.move_count = env.move_count
         self.state = copy.deepcopy(env.state)
@@ -48,6 +48,9 @@ class ConnectFourEnvironment():
         self.connect_four_count = env.connect_four_count
 
         self.logger = env.logger
+
+    def get_player(self):
+        return self.player
 
     def get_game_state_short(self):
         return format(self.move_count, '02d') \
@@ -60,9 +63,9 @@ class ConnectFourEnvironment():
     def set_game_state_short(self, s):
         self.move_count = int(s[0:2])
         if s[2:3] == "X":
-            self.next_to_move = 1
+            self.player = 1
         else:
-            self.next_to_move = -1
+            self.player = -1
         if s[3:4] == " ":
             self.last_action = None
         else:
@@ -80,7 +83,7 @@ class ConnectFourEnvironment():
         self.parse_state(s[6:48])
 
     def game_result(self, player):
-        if player == self.next_to_move:
+        if player == self.player:
             return self.reward
         else:
             return -self.reward
@@ -95,6 +98,9 @@ class ConnectFourEnvironment():
                 free_columns.append(col)
         return free_columns
 
+    def get_last_action(self):
+        return self.last_action
+
     def move(self, action):
 
         if self.logger is not None:
@@ -107,11 +113,11 @@ class ConnectFourEnvironment():
             return self.finish(ConnectFourEnvironment.ILLEGAL_MOVE_PENALTY, terminate=True, illegal=True)
 
         # Did player win
-        if self.is_winning_action(self.next_to_move, action):
-            self.apply_move(self.next_to_move, action)
+        if self.is_winning_action(self.player, action):
+            self.apply_move(self.player, action)
             return self.finish(ConnectFourEnvironment.WIN_REWARD, terminate=True)
 
-        self.apply_move(self.next_to_move, action)
+        self.apply_move(self.player, action)
 
         if self.all_occupied():
             return self.finish(ConnectFourEnvironment.DRAW_REWARD, terminate=True)
@@ -122,7 +128,7 @@ class ConnectFourEnvironment():
     def finish(self, result, terminate = False, illegal = False):
         self.illegal_action = illegal
         self.terminated = terminate
-        self.next_to_move = -self.next_to_move
+        self.player = -self.player
         self.reward = -result
         self.move_count += 1
         if self.logger is not None:
@@ -130,14 +136,14 @@ class ConnectFourEnvironment():
         return self
 
     # private
-    def apply_move(self, next_to_move, action):
+    def apply_move(self, player, action):
 
         for row in range(6):
             if self.state[action][row] == 0:
-                self.state[action][row] = next_to_move
+                self.state[action][row] = player
                 break
 
-    def is_winning_action(self, next_to_move, action, row_offset=0):
+    def is_winning_action(self, player, action, row_offset=0):
 
         for action_row in range(6):
             if self.state[action][action_row] == 0:
@@ -159,7 +165,7 @@ class ConnectFourEnvironment():
 
         col = action - 1
         while col >= 0:
-            if self.state[col][action_row] == next_to_move:
+            if self.state[col][action_row] == player:
                 left += 1
                 col -= 1
             else:
@@ -167,7 +173,7 @@ class ConnectFourEnvironment():
 
         col = action + 1
         while col <= 6:
-            if self.state[col][action_row] == next_to_move:
+            if self.state[col][action_row] == player:
                 right += 1
                 col += 1
             else:
@@ -175,7 +181,7 @@ class ConnectFourEnvironment():
 
         row = action_row - 1
         while row >= 0:
-            if self.state[action][row] == next_to_move:
+            if self.state[action][row] == player:
                 down += 1
                 row -= 1
             else:
@@ -184,7 +190,7 @@ class ConnectFourEnvironment():
         col = action - 1
         row = action_row - 1
         while row >= 0 and col >= 0:
-            if self.state[col][row] == next_to_move:
+            if self.state[col][row] == player:
                 left_down += 1
                 col -= 1
                 row -= 1
@@ -194,7 +200,7 @@ class ConnectFourEnvironment():
         col = action + 1
         row = action_row + 1
         while row <= 5 and col <= 6:
-            if self.state[col][row] == next_to_move:
+            if self.state[col][row] == player:
                 right_up += 1
                 col += 1
                 row += 1
@@ -204,7 +210,7 @@ class ConnectFourEnvironment():
         col = action - 1
         row = action_row + 1
         while row <= 5 and col >= 0:
-            if self.state[col][row] == next_to_move:
+            if self.state[col][row] == player:
                 left_up += 1
                 col -= 1
                 row += 1
@@ -214,7 +220,7 @@ class ConnectFourEnvironment():
         col = action + 1
         row = action_row - 1
         while row >= 0 and col <= 6:
-            if self.state[col][row] == next_to_move:
+            if self.state[col][row] == player:
                 right_down += 1
                 col += 1
                 row -= 1
@@ -288,7 +294,7 @@ class ConnectFourEnvironment():
 
     def who_is_now(self):
         s = ""
-        if self.next_to_move == 1:
+        if self.player == 1:
             s += "X"
         else:
             s += "O"
@@ -332,7 +338,7 @@ class ConnectFourEnvironment():
 
     def who_is_now_short(self):
         s = ""
-        if self.next_to_move == 1:
+        if self.player == 1:
             s += "X"
         else:
             s += "O"
@@ -390,7 +396,7 @@ class ConnectFourEnvironment():
     def processState(self):
         state = self.state
 
-        if self.next_to_move == 1:
+        if self.player == 1:
             X = np.array([1.0, 0.0])
             O = np.array([0.0, 1.0])
         else:

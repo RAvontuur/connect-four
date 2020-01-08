@@ -18,14 +18,14 @@ class Player_MonteCarlo:
 
         self._mcts = mcts
         env  = best_node.state
-        return env, env.last_action
+        return env, env.get_last_action()
 
     def analyzed_result(self):
         if self._mcts is None:
             return None
         if self._mcts.root.analyzed_result is None:
             return None
-        return self._mcts.root.analyzed_result * self._mcts.root.state.next_to_move
+        return self._mcts.root.analyzed_result * self._mcts.root.state.get_player()
 
     def visits(self):
         if self._mcts is None:

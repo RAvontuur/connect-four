@@ -16,7 +16,7 @@ ENV.set_logger(env_logger)
 PLAYER = Player_MonteCarlo(100000, rollout_player=player_rollout)
 env2, action = PLAYER.play(ENV)
 
-assert(env2.next_to_move == -1)
+assert(env2.get_player() == -1)
 print("visits: " + str(PLAYER.visits()))
 print("choices: " + str(PLAYER.choices()))
 play_writer = PlayWriterJson()
