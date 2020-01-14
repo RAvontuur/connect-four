@@ -6,7 +6,7 @@ def convert_to_player_keras(player):
 
 def convert_to_action_keras(action, playerKeras):
     action_keras = np.zeros([action.shape[0],14])
-    action_keras[:, action * 2 + playerKeras] = 1
+    action_keras[range(action.shape[0]), action * 2 + playerKeras] = 1
     return action_keras
 
 class ConnectFourEnvironmentKeras():
@@ -76,28 +76,30 @@ class ConnectFourEnvironmentKeras():
 
         if len(np.shape(action)) == 0:
             action = np.array([action])
+        else:
+            action = np.array(action)
 
         if self.logger is not None:
             self.logger.log_before_action(self, action)
 
-        # print("move " + str(action))
-        # print(self.valid_actions)
+        # exclude the the terminated plays from new prediction
+        active_plays = np.nonzero(self.terminated-1)
 
         player_keras = convert_to_player_keras(self.player)
 
         # termination due to illegal action
-        self.illegal_action = np.where(self.valid_actions[:, action * 2 + player_keras] > 0.5, 0, 1)
+        indices = action * 2 + player_keras
+        valid_action_indices = np.diagonal(np.transpose(self.valid_actions)[indices])
+        self.illegal_action[active_plays] = np.where(valid_action_indices[active_plays] > 0.5, 0, 1)
         self.terminated = np.where(self.terminated == 1, self.terminated, self.illegal_action)
 
-        # print(action_keras)
-        # print("predict")
+        if np.all(self.terminated == 1):
+            return self
 
-        # exclude the the terminated plays from new prediction
-        active_plays = np.nonzero(self.terminated-1)[1]
+        active_plays = np.nonzero(self.terminated-1)
         state_active = self.state[active_plays]
         action_active = action[active_plays]
         player_keras_active =  player_keras[active_plays]
-
         action_keras_active = convert_to_action_keras(action_active, player_keras_active)
 
         [board_active, reward_active, valid_actions_active] = self.model.predict(
@@ -106,15 +108,22 @@ class ConnectFourEnvironmentKeras():
         self.state[active_plays] = board_active
         self.valid_actions[active_plays] = valid_actions_active
         self.reward[active_plays] = reward_active
+
         # check for full boards, these plays are terminated
-        self.terminated = np.where(np.amax(self.valid_actions, axis=1) < 0.5, 1, self.terminated)
+
+        self.terminated = np.where(self.terminated == 1, self.terminated, np.amax(self.valid_actions, axis=1) < 0.5)
 
         # check for positive rewards, these plays are terminated
-        self.terminated = np.where(np.amax(self.reward, axis=1) > 0.5, 1, self.terminated)
+        self.terminated = np.where(self.terminated == 1, self.terminated, np.amax(self.reward, axis=1) > 0.5)
 
         # next player
-        self.player = -self.player
-        self.last_action = action
+
+        if self.last_action is None:
+            self.last_action = action
+        else:
+            self.last_action[active_plays] = action[active_plays]
+        active_plays = np.nonzero(self.terminated-1)
+        self.player[active_plays] = -self.player[active_plays]
 
         if self.logger is not None:
             self.logger.log(self)
@@ -130,6 +139,11 @@ class ConnectFourEnvironmentKeras():
                 s += "X has WON"
             elif self.reward[play, 1] > 0.5:
                 s += "O has WON"
+            elif self.illegal_action[play] == 1:
+                if self.player[play] == 1:
+                    s += "X has LOST after illegal move"
+                else:
+                    s += "O has LOST after illegal move"
             else:
                 s = "Game ended in a DRAW"
             # if self.illegal_action:
