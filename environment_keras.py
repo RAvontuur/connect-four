@@ -1,5 +1,6 @@
 import numpy as np
 from tensorflow import keras
+import time
 
 def convert_to_player_keras(player):
     return np.where(player>0, 0, 1)
@@ -21,6 +22,7 @@ class ConnectFourEnvironmentKeras():
         self.last_action = None
         self.logger = None
         self.verbose = False
+        self.timer1 = 0
         if model is None:
             self.model = keras.models.load_model('connect-four-environment.h5')
         else:
@@ -88,8 +90,8 @@ class ConnectFourEnvironmentKeras():
         player_keras = convert_to_player_keras(self.player)
 
         # termination due to illegal action
-        indices = action * 2 + player_keras
-        valid_action_indices = np.diagonal(np.transpose(self.valid_actions)[indices])
+        indices_tuple = (range(action.shape[0]), action * 2 + player_keras)
+        valid_action_indices = self.valid_actions[indices_tuple]
         self.illegal_action[active_plays] = np.where(valid_action_indices[active_plays] > 0.5, 0, 1)
         self.terminated = np.where(self.terminated == 1, self.terminated, self.illegal_action)
 
@@ -102,8 +104,10 @@ class ConnectFourEnvironmentKeras():
         player_keras_active =  player_keras[active_plays]
         action_keras_active = convert_to_action_keras(action_active, player_keras_active)
 
+        begin1 = time.time()
         [board_active, reward_active, valid_actions_active] = self.model.predict(
             [state_active, action_keras_active], batch_size=128)
+        self.timer1 += time.time() - begin1
 
         self.state[active_plays] = board_active
         self.valid_actions[active_plays] = valid_actions_active

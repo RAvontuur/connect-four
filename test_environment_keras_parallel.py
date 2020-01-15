@@ -39,25 +39,37 @@ assert(env.game_result(-1, play=0) == -1)
 assert(env.game_result(1, play=1) == -1)
 assert(env.game_result(-1, play=1) == 1)
 
-def rollout(num_plays):
+model = ConnectFourEnvironmentKeras().model
+
+def rollout(num_plays, num_displays=10):
     print("rollout multiple plays, num_plays: " + str(num_plays))
     start = time.time()
-    env = ConnectFourEnvironmentKeras(parallel_plays=num_plays)
+    env = ConnectFourEnvironmentKeras(model=model, parallel_plays=num_plays)
+
+    next_move = np.zeros(num_plays, dtype=int)
     counter = 0
     while np.any(env.terminated == 0):
         if counter>50:
             print("maximum moves exceeded")
             break
-        env.move(np.random.randint(low=0, high=7, size=num_plays))
+        indices_tuple = np.nonzero(env.valid_actions)
+        permutation = np.random.permutation(indices_tuple[0].shape[0])
+        next_move[indices_tuple[0][permutation]] = indices_tuple[1][permutation]/2
+        env.move(next_move)
         counter += 1
     end = time.time()
     for i in range(num_plays):
-        if i>10:
+        if i>=num_displays:
             break
         print(env.display(play=i))
     print("elapsed: "  + str(end - start))
+    print("elapsed Keras: "  + str(env.timer1))
+    print()
 
-rollout(100)
-rollout(10000)
+rollout(100, num_displays=10)
+rollout(1000, num_displays=0)
+rollout(5000, num_displays=0)
+rollout(10000, num_displays=0)
+rollout(100000, num_displays=0)
 
 print("all tests OK")
