@@ -1,5 +1,6 @@
 from environment_keras import ConnectFourEnvironmentKeras
 import numpy as np
+import time
 
 print("[0] test X wins (vertical)")
 print("[1] test 0 wins (vertical)")
@@ -38,15 +39,25 @@ assert(env.game_result(-1, play=0) == -1)
 assert(env.game_result(1, play=1) == -1)
 assert(env.game_result(-1, play=1) == 1)
 
+def rollout(num_plays):
+    print("rollout multiple plays, num_plays: " + str(num_plays))
+    start = time.time()
+    env = ConnectFourEnvironmentKeras(parallel_plays=num_plays)
+    counter = 0
+    while np.any(env.terminated == 0):
+        if counter>50:
+            print("maximum moves exceeded")
+            break
+        env.move(np.random.randint(low=0, high=7, size=num_plays))
+        counter += 1
+    end = time.time()
+    for i in range(num_plays):
+        if i>10:
+            break
+        print(env.display(play=i))
+    print("elapsed: "  + str(end - start))
 
-print("rollout multiple plays")
-numplays=100
-env = ConnectFourEnvironmentKeras(parallel_plays=numplays)
-while np.any(env.terminated == 0):
-    env.move(np.random.randint(low=0, high=6, size=numplays))
-
-for i in range(numplays):
-    print(env.display(play=i))
-
+rollout(100)
+rollout(10000)
 
 print("all tests OK")

@@ -110,13 +110,11 @@ class ConnectFourEnvironmentKeras():
         self.reward[active_plays] = reward_active
 
         # check for full boards, these plays are terminated
-
         self.terminated = np.where(self.terminated == 1, self.terminated, np.amax(self.valid_actions, axis=1) < 0.5)
 
         # check for positive rewards, these plays are terminated
         self.terminated = np.where(self.terminated == 1, self.terminated, np.amax(self.reward, axis=1) > 0.5)
 
-        # next player
 
         if self.last_action is None:
             self.last_action = action
