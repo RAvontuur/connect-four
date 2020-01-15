@@ -93,7 +93,7 @@ class ConnectFourEnvironmentKeras():
         indices_tuple = (range(action.shape[0]), action * 2 + player_keras)
         valid_action_indices = self.valid_actions[indices_tuple]
         self.illegal_action[active_plays] = np.where(valid_action_indices[active_plays] > 0.5, 0, 1)
-        self.terminated = np.where(self.terminated == 1, self.terminated, self.illegal_action)
+        self.terminated = np.where(self.terminated == 1, 1, self.illegal_action)
 
         if np.all(self.terminated == 1):
             return self
@@ -114,10 +114,10 @@ class ConnectFourEnvironmentKeras():
         self.reward[active_plays] = reward_active
 
         # check for full boards, these plays are terminated
-        self.terminated = np.where(self.terminated == 1, self.terminated, np.amax(self.valid_actions, axis=1) < 0.5)
+        self.terminated = np.where(self.terminated == 1, 1, np.amax(self.valid_actions, axis=1) < 0.5)
 
         # check for positive rewards, these plays are terminated
-        self.terminated = np.where(self.terminated == 1, self.terminated, np.amax(self.reward, axis=1) > 0.5)
+        self.terminated = np.where(self.terminated == 1, 1, np.amax(self.reward, axis=1) > 0.5)
 
 
         if self.last_action is None:
