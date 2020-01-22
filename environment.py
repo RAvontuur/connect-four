@@ -392,23 +392,3 @@ class ConnectFourEnvironment():
                     self.state[col][row] = 1
                 elif s[col+(row*7)] == "O":
                     self.state[col][row] = -1
-
-    def processState(self):
-        state = self.state
-
-        if self.player == 1:
-            X = np.array([1.0, 0.0])
-            O = np.array([0.0, 1.0])
-        else:
-            O = np.array([1.0, 0.0])
-            X = np.array([0.0, 1.0])
-
-        neural_state = np.zeros(shape=(7, 6, 2), dtype=np.float32)
-        for row in range(6):
-            for col in range(7):
-                if state[col][row] == 1:
-                    neural_state[col][row] = X
-                elif state[col][row] == -1:
-                    neural_state[col][row] = O
-
-        return np.reshape([neural_state], [7 * 6 * 2]).tolist()

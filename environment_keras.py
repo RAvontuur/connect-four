@@ -2,13 +2,16 @@ import numpy as np
 from tensorflow import keras
 import time
 
+
 def convert_to_player_keras(player):
     return np.where(player>0, 0, 1)
+
 
 def convert_to_action_keras(action, playerKeras):
     action_keras = np.zeros([action.shape[0],14])
     action_keras[range(action.shape[0]), action * 2 + playerKeras] = 1
     return action_keras
+
 
 class ConnectFourEnvironmentKeras():
 
@@ -27,6 +30,9 @@ class ConnectFourEnvironmentKeras():
             self.model = keras.models.load_model('connect-four-environment.h5')
         else:
             self.model = model
+        # self.counterOK = 0
+        # self.counterNOK = 0
+        self.ignore_invalid_actions = True
 
     def copy(self):
         result = ConnectFourEnvironmentKeras(self.model)
@@ -93,8 +99,31 @@ class ConnectFourEnvironmentKeras():
         indices_tuple = (range(action.shape[0]), action * 2 + player_keras)
         valid_action_indices = self.valid_actions[indices_tuple]
         self.illegal_action[active_plays] = np.where(valid_action_indices[active_plays] > 0.5, 0, 1)
-        self.terminated = np.where(self.terminated == 1, 1, self.illegal_action)
 
+        if not self.ignore_invalid_actions:
+            if np.any(self.illegal_action[active_plays] == 1):
+                # print("action * 2 + player_keras: {}".format(action * 2 + player_keras))
+                # print("valid actions indices {}:".format(valid_action_indices.shape))
+                # print(valid_action_indices)
+                illegal_action_plays = []
+                for play in active_plays[0]:
+                    if self.illegal_action[play] == 1:
+                        illegal_action_plays.append(play)
+                        if self.get_player(play) == 1:
+                            self.reward[active_plays, 1] = 1
+                        else:
+                            self.reward[active_plays, 0] = 1
+
+        # print("terminated {} game(s) due to illegal action: {}".format(len(illegal_action_plays), illegal_action_plays))
+
+        # for play in active_plays[0]:
+        #     print(self.display(play))
+        #     print("action {} on play {}".format(action[play], play))
+        #     print("with valid actions: {}".format(self.valid_actions[play]))
+        #     print("action * 2 + player_keras: {}".format((action * 2 + player_keras)[play]))
+        #     print("valid actions indices {}:".format(valid_action_indices[play]))
+
+        self.terminated = np.where(self.terminated == 1, 1, self.illegal_action)
         if np.all(self.terminated == 1):
             return self
 
@@ -113,12 +142,27 @@ class ConnectFourEnvironmentKeras():
         self.valid_actions[active_plays] = valid_actions_active
         self.reward[active_plays] = reward_active
 
+        # verify no valid actions current player
+        # for play in active_plays[0]:
+        #     offset = 0
+        #     if self.player[play] < 0:
+        #         offset = 1
+        #     failed = False
+        #     for i in range(7):
+        #         if self.valid_actions[play][i*2 + offset] > 0.5:
+        #             print("play {} is corrupt for {} and valid_actions {}".format(play, i*2 + offset, self.valid_actions[play] ))
+        #             failed = True
+        #             break
+        #     if failed:
+        #         self.counterNOK += 1
+        #     else:
+        #         self.counterOK += 1
+
         # check for full boards, these plays are terminated
         self.terminated = np.where(self.terminated == 1, 1, np.amax(self.valid_actions, axis=1) < 0.5)
 
         # check for positive rewards, these plays are terminated
         self.terminated = np.where(self.terminated == 1, 1, np.amax(self.reward, axis=1) > 0.5)
-
 
         if self.last_action is None:
             self.last_action = action
