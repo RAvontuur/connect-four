@@ -34,7 +34,7 @@ class MonteCarloTreeSearch:
         while current_node.analyzed_result is None:
             if not current_node.is_fully_expanded():
                 # expand
-                next_state = copy.deepcopy(current_node.state)
+                next_state = current_node.state.copy()
                 next_state, action = self.player.play(next_state, current_node.untried_actions)
                 current_node.untried_actions.remove(action)
 
@@ -63,8 +63,8 @@ class MonteCarloTreeSearch:
         return current_node
 
     def rollout(self, node):
-        next_to_move = node.state.next_to_move
-        current_rollout_state = copy.deepcopy(node.state)
+        next_to_move = node.state.get_player()
+        current_rollout_state = node.state.copy()
         while not current_rollout_state.is_game_over():
             current_rollout_state, _ = self.player.play(current_rollout_state)
             # print(current_rollout_state)

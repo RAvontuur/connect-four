@@ -24,7 +24,7 @@ root.untried_actions = [0]
 mcts = MonteCarloTreeSearch(root, rollout_player)
 
 node = mcts.tree_policy()
-assert(node.state.next_to_move == -1)
+assert(node.state.get_player() == -1)
 
 result = mcts.rollout(node)
 node.backpropagate(result)
@@ -32,7 +32,7 @@ node.backpropagate(result)
 node = mcts.tree_policy()
 # manipulate the untried_actions
 node.parent.untried_actions = [6]
-assert(node.state.next_to_move == 1)
+assert(node.state.get_player() == 1)
 
 result = mcts.rollout(node)
 node.backpropagate(result)
@@ -72,14 +72,14 @@ env.move(1)
 env.move(0)
 env.move(2)
 env.move(0)
-assert(env.next_to_move == -1)
+assert(env.get_player() == -1)
 
 rollout_player = MockPlayer([3, 0, 0])
 root = MonteCarloTreeSearchNode(state=env, parent=None)
 # manipulate the untried_actions
 root.untried_actions = [3]
 
-assert(root.state.next_to_move == -1)
+assert(root.state.get_player() == -1)
 print("root")
 print(root.state)
 
@@ -87,14 +87,14 @@ mcts = MonteCarloTreeSearch(root, rollout_player)
 
 node = mcts.tree_policy()
 print("node first time")
-assert(node.state.next_to_move == 1)
+assert(node.state.get_player() == 1)
 print(node.state)
 
 result = mcts.rollout(node)
 node.backpropagate(result)
 
 node = mcts.tree_policy()
-assert(node.state.next_to_move == -1)
+assert(node.state.get_player() == -1)
 
 # manipulate the untried_actions
 node.parent.untried_actions = [6]
