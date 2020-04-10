@@ -20,7 +20,6 @@ class ConnectFourEnvironment():
         self.state = np.zeros(shape=(7, 6))
         self.connect_four = []
         self.connect_four_count = 0
-        self.logger = None
 
     def copy(self):
         result = ConnectFourEnvironment()
@@ -33,9 +32,6 @@ class ConnectFourEnvironment():
     def restart(self):
         self.__init__()
 
-    def set_logger(self, logger):
-        self.logger = logger
-
     def copy_from(self, env):
         self.reward = env.reward
         self.terminated = env.terminated
@@ -46,8 +42,6 @@ class ConnectFourEnvironment():
         self.state = copy.deepcopy(env.state)
         self.connect_four = env.connect_four
         self.connect_four_count = env.connect_four_count
-
-        self.logger = env.logger
 
     def get_player(self):
         return self.player
@@ -103,9 +97,6 @@ class ConnectFourEnvironment():
 
     def move(self, action):
 
-        if self.logger is not None:
-            self.logger.log_before_action(self, action)
-
         self.last_action = action
 
         # Illegal move -- too high stack of squares
@@ -131,8 +122,6 @@ class ConnectFourEnvironment():
         self.player = -self.player
         self.reward = -result
         self.move_count += 1
-        if self.logger is not None:
-            self.logger.log(self)
         return self
 
     # private

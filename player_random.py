@@ -1,9 +1,18 @@
 import random
+from environment import ConnectFourEnvironment
+from player import Player
 
 
-class Player_Random:
+class PlayerRandom(Player):
 
-    def play(self, env, untried_actions = None):
+    def action_values(self, env: ConnectFourEnvironment):
+        result = [-1.0] * 7
+        for a in env.get_legal_actions():
+            result[a] = 0.0
+
+        return result
+
+    def play(self, env: ConnectFourEnvironment, untried_actions = None):
         assert(not env.terminated)
 
         if untried_actions is None:

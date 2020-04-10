@@ -2,18 +2,25 @@ import numpy as np
 import random
 import math
 from collections import defaultdict
+from environment import ConnectFourEnvironment
+
 
 class MonteCarloTreeSearchNode():
 
-    def __init__(self, state, parent):
+    def __init__(self, state:ConnectFourEnvironment, parent, action=None, action_value=0.0):
         self.state = state
+        if state is None:
+            self.action = action
+        else:
+            self.action = state.get_last_action()
+        self.action_value = action_value
         self.parent = parent
         self.children = []
         self._results = defaultdict(int)
         self.untried_actions = self.state.get_legal_actions()
         self._number_of_visits = 0.
 
-        if self.state.is_game_over():
+        if self.state is not None and self.state.is_game_over():
             self.analyzed_result = self.state.reward
         else:
             self.analyzed_result = None
@@ -34,7 +41,7 @@ class MonteCarloTreeSearchNode():
         # by default: reward of an illegal move
         result = [-1.0] * 7
         for c in self.children:
-            result[c.state.get_last_action()] = -c.q / c.n
+            result[c.action] = -c.q / c.n
         return result
 
 

@@ -1,12 +1,11 @@
-import copy
 from mcts.nodes import MonteCarloTreeSearchNode
+
 
 class MonteCarloTreeSearch:
 
     def __init__(self, node: MonteCarloTreeSearchNode, player=None):
         self.root = node
         self.player = player
-
 
     def best_child(self, number_of_rollouts):
         for i in range(0, number_of_rollouts):
@@ -25,7 +24,7 @@ class MonteCarloTreeSearch:
             result = self.rollout(node)
             node.backpropagate(result)
 
-        # exploitation only
+        # retrieve result: exploitation only
         return self.root.best_child(c_param = 0.)
 
 
@@ -69,4 +68,3 @@ class MonteCarloTreeSearch:
             current_rollout_state, _ = self.player.play(current_rollout_state)
             # print(current_rollout_state)
         return current_rollout_state.game_result(next_to_move)
-
