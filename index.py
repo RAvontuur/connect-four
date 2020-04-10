@@ -1,8 +1,8 @@
 import numpy as np
 import json
 from environment import ConnectFourEnvironment
-from player_montecarlo import Player_MonteCarlo
-from player_random import Player_Random
+from player_montecarlo import PlayerMonteCarlo
+from player_random import PlayerRandom
 from dynamo_repository import DynamoRepository
 
 ENV = None
@@ -63,8 +63,8 @@ def initialize():
     if DYNAMO is None:
         DYNAMO = DynamoRepository()
         ENV = ConnectFourEnvironment()
-        player_rollout = Player_Random()
-        PLAYER = Player_MonteCarlo(10000, rollout_player=player_rollout)
+        player_rollout = PlayerRandom()
+        PLAYER = PlayerMonteCarlo(10000, rollout_player=player_rollout)
 
 def restore_session(play_id):
 

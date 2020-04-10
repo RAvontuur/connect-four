@@ -21,7 +21,7 @@ root = MonteCarloTreeSearchNode(state=env, parent=None)
 # manipulate the untried_actions
 root.untried_actions = [0]
 
-mcts = MonteCarloTreeSearch(root, rollout_player)
+mcts = MonteCarloTreeSearch([root], rollout_player)
 
 node = mcts.tree_policy()
 assert(node.state.get_player() == -1)
@@ -83,7 +83,7 @@ assert(root.state.get_player() == -1)
 print("root")
 print(root.state)
 
-mcts = MonteCarloTreeSearch(root, rollout_player)
+mcts = MonteCarloTreeSearch([root], rollout_player)
 
 node = mcts.tree_policy()
 print("node first time")
