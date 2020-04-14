@@ -11,9 +11,9 @@ class PlayerMonteCarlo(Player):
         self.rollout_player = rollout_player
         self._mcts: MonteCarloTreeSearch = None
 
-    def action_values(self, env: ConnectFourEnvironment):
+    def prior_values(self, env: ConnectFourEnvironment):
         assert (not env.terminated)
-        root = MonteCarloTreeSearchNode(parent=None, action_value=0.0, state=env)
+        root = MonteCarloTreeSearchNode(parent=None, action_value=0.0, env=env)
         mcts = MonteCarloTreeSearch(root, self.rollout_player)
         self._mcts = mcts
 
@@ -22,7 +22,7 @@ class PlayerMonteCarlo(Player):
     def play(self, env: ConnectFourEnvironment):
         self._mcts = None
         assert (not env.terminated)
-        root = MonteCarloTreeSearchNode(state=env, parent=None)
+        root = MonteCarloTreeSearchNode(env=env, parent=None)
         mcts = MonteCarloTreeSearch(root, self.rollout_player)
 
         best_node = mcts.best_child(self.number_of_simulations)

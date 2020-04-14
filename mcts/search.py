@@ -7,64 +7,61 @@ class MonteCarloTreeSearch:
         self.root = node
         self.player = player
 
-    def best_child(self, number_of_rollouts):
-        for i in range(0, number_of_rollouts):
-            node = self.tree_policy()
-            while node.analyzed_result is not None:
-                # increase visits without rollouts
-                node.backpropagate(node.analyzed_result)
-                if self.root.analyzed_result is not None:
-                    break
-                node = self.tree_policy()
+    def best_child(self, number_of_rollouts) -> MonteCarloTreeSearchNode:
+        for i in range(number_of_rollouts):
+            leaf_node = self.find_leaf_node()
+            if leaf_node.analyzed_result is not None:
+                # increase visit without roll outs
+                leaf_node.back_propagate(leaf_node.analyzed_result)
+            else:
+                self.expand_node(leaf_node)
+                best_child = leaf_node.best_child()
+                self.ensure_state_presence(best_child)
+                result = self.roll_out(best_child)
+                best_child.back_propagate(result)
 
             if self.root.analyzed_result is not None:
                 print("Fully analyzed after: " + str(i))
                 break
 
-            result = self.rollout(node)
-            node.backpropagate(result)
-
-        # retrieve result: exploitation only
+        # retrieve final result: exploitation only
         return self.root.best_child(c_param = 0.)
 
-
-    def tree_policy(self):
+    def find_leaf_node(self) -> MonteCarloTreeSearchNode:
         current_node = self.root
-        while current_node.analyzed_result is None:
-            if not current_node.is_fully_expanded():
-                # expand
-                next_state = current_node.state.copy()
-                next_state, action = self.player.play(next_state, current_node.untried_actions)
-                current_node.untried_actions.remove(action)
-
-                child_node = MonteCarloTreeSearchNode(next_state, parent=current_node)
-                current_node.children.append(child_node)
-
-                if child_node.analyzed_result is not None and child_node.analyzed_result <= 0:
-                        # opponent loses or play ended in a draw
-                        current_node.untried_actions = []
-                        current_node.analyzed_result = -child_node.analyzed_result
-                        current_node.children = [child_node]
-                return child_node
+        while current_node.is_fully_expanded() and current_node.analyzed_result is None:
+            best_child = current_node.best_child()
+            if best_child.analyzed_result == -1:
+                # it is sure that the opponent will lose
+                # no reason to look further
+                current_node.analyzed_result = 1
+            elif current_node.all_analyzed():
+                # it will not be better then this
+                current_node.analyzed_result = -best_child.analyzed_result
             else:
-                best_child = current_node.best_child()
-                if best_child.analyzed_result == -1:
-                    # it is sure that the opponent will lose
-                    # no reason to look further
-                    current_node.analyzed_result = 1
-                elif current_node.all_analyzed():
-                    # it will not be better then this
-                    current_node.analyzed_result = -best_child.analyzed_result
-                else:
-                    # continue exploring the best move (= the best child)
-                    current_node = best_child
-
+                # continue exploring the best move (= the best child)
+                current_node = best_child
         return current_node
 
-    def rollout(self, node):
-        next_to_move = node.state.get_player()
-        current_rollout_state = node.state.copy()
-        while not current_rollout_state.is_game_over():
-            current_rollout_state, _ = self.player.play(current_rollout_state)
+    def expand_node(self, leaf_node: MonteCarloTreeSearchNode):
+        assert(not leaf_node.is_fully_expanded())
+        prior_values = self.player.prior_values(leaf_node.env)
+        for i, prior_value in enumerate(prior_values):
+            action = leaf_node.env.get_legal_actions()[i]
+            child_node = MonteCarloTreeSearchNode(parent=leaf_node, action=action, prior_value=-prior_value)
+            leaf_node.children.append(child_node)
+
+    def ensure_state_presence(self, node: MonteCarloTreeSearchNode):
+        if node.env is None:
+            self.ensure_state_presence(node.parent)
+            env = node.parent.env.copy()
+            node.env = env.move(node.action)
+
+    def roll_out(self, node: MonteCarloTreeSearchNode):
+
+        next_to_move = node.env.get_player()
+        current_rollout_env = node.env.copy()
+        while not current_rollout_env.is_game_over():
+            current_rollout_env, _ = self.player.play(current_rollout_env)
             # print(current_rollout_state)
-        return current_rollout_state.game_result(next_to_move)
+        return current_rollout_env.game_result(next_to_move)
