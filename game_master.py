@@ -3,8 +3,8 @@ from environment import ConnectFourEnvironment
 from player_montecarlo import PlayerMonteCarlo
 from player_random import PlayerRandom
 
-number_of_plays = 10
-show_play = False
+number_of_plays = 100
+show_play = True
 show_final_play = True
 show_intermediate_result = True
 show_analyzed_play = True
@@ -68,8 +68,9 @@ def run():
 
 
 print("starting")
-player1 = PlayerMonteCarlo(1000, rollout_player=PlayerRandom())
-player2 = PlayerMonteCarlo(10000, rollout_player=PlayerRandom())
+player1 = PlayerMonteCarlo(7, rollout_player=PlayerRandom())
+# player2 = PlayerMonteCarlo(100, rollout_player=PlayerRandom())
+player2 = PlayerRandom()
 run()
 
 

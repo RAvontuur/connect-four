@@ -9,3 +9,6 @@ class Player:
 
     def play(self, env: ConnectFourEnvironment) -> [ConnectFourEnvironment, int]:
         pass
+
+    def analyzed_result(self):
+        return None

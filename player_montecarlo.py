@@ -17,7 +17,7 @@ class PlayerMonteCarlo(Player):
         mcts = MonteCarloTreeSearch(root, self.rollout_player)
         self._mcts = mcts
 
-        return mcts.root_nodes.choices_q_norm()
+        return mcts.root.choices_q_norm()
 
     def play(self, env: ConnectFourEnvironment):
         self._mcts = None
@@ -28,7 +28,7 @@ class PlayerMonteCarlo(Player):
         best_node = mcts.best_child(self.number_of_simulations)
 
         self._mcts = mcts
-        env = best_node.state
+        env = best_node.env
         return env, env.get_last_action()
 
     def analyzed_result(self):
@@ -36,7 +36,7 @@ class PlayerMonteCarlo(Player):
             return None
         if self._mcts.root.analyzed_result is None:
             return None
-        return self._mcts.root.analyzed_result * self._mcts.root.state.get_player()
+        return self._mcts.root.analyzed_result * self._mcts.root.env.get_player()
 
     def visits(self):
         if self._mcts is None:

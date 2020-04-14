@@ -10,10 +10,18 @@ class MonteCarloTreeSearchNodeDef:
     def __init__(self, env: ConnectFourEnvironment):
         self.env = env
         self.action = None
+        self.analyzed_result = None
+        self.parent = None
+        self.children = None
 
     def back_propagate(self, result):
         pass
 
+    def best_child(self, c_param=1.4):
+        pass
+
+    def is_fully_expanded(self):
+        pass
 
 class MonteCarloTreeSearchNode(MonteCarloTreeSearchNodeDef):
 
@@ -84,8 +92,10 @@ class MonteCarloTreeSearchNode(MonteCarloTreeSearchNodeDef):
         ]
 
     def best_child(self, c_param=1.4) -> MonteCarloTreeSearchNodeDef:
-        weights = self.choices_weights(c_param)
-        return self.children[np.asarray(weights).argmax()]
+        weights = np.asarray(self.choices_weights(c_param))
+        # argmax equivalent, but with random tie breaking
+        chosen_action = np.random.choice(np.flatnonzero(weights == weights.max()))
+        return self.children[chosen_action]
 
     def v(self):
         wins = self._results[1]
