@@ -8,36 +8,34 @@ from tensorflow.keras import layers
 
 
 def termination_model():
-    kernel1 = np.zeros([84, 138])
+    kernel1 = np.zeros([6, 7, 2, 138])
 
     # horizontal (24x)
     for row in range(6):
         for col in range(4):
             for i in range(4):
-                kernel1[2 * (col + i) + (14 * row), col + 4 * row] = 2
-                kernel1[2 * (col + i) + (14 * row) + 1, 69 + col + 4 * row] = 2
+                kernel1[row, col + i, 0, col + 4 * row] = 2
+                kernel1[row, col + i, 1, 69 + col + 4 * row] = 2
 
     # vertical (21x)
     for row in range(3):
         for col in range(7):
             for i in range(4):
-                kernel1[2 * col + 14 * (row + i), 24 + col + 7 * row] = 2
-                kernel1[2 * col + 14 * (row + i) + 1, 24 + 69 + col + 7 * row] = 2
+                kernel1[row+i, col, 0, 24 + col + 7 * row] = 2
+                kernel1[row+i, col, 1, 69 + 24 + col + 7 * row] = 2
 
     # diagonal (12x)
     for row in range(3):
         for col in range(4):
             for i in range(4):
-                kernel1[2 * (col + i) + 14 * (row + i), 45 + col + 4 * row] = 2
-                kernel1[2 * (col + i) + 14 * (row + i) + 1, 45 + 69 + col + 4 * row] = 2
-
+                kernel1[row+i, col+i, 0, 45 + col + 4 * row] = 2
+                kernel1[row+i, col+i, 1, 69 + 45 + col + 4 * row] = 2
     # diagonal (12x)
     for row in range(3):
         for col in range(4):
             for i in range(4):
-                kernel1[2 * (col + 3 - i) + 14 * (row + i), 57 + col + 4 * row] = 2
-                kernel1[2 * (col + 3 - i) + 14 * (row + i) + 1, 57 + 69 + col + 4 * row] = 2
-
+                kernel1[row+i, col+3-i, 0, 57 + col + 4 * row] = 2
+                kernel1[row+i, col+3-i, 1, 69 + 57 + col + 4 * row] = 2
 
     # def plot_sums(i):
     #     print('---' + str(i) + '---' + str(np.sum(kernel1[0:84, i])))
@@ -65,7 +63,8 @@ def termination_model():
     bias2 = np.zeros([2, 1])
 
 
-    layer1 = layers.Dense(138, input_shape=(84,),
+    layer1 = layers.Conv2D(filters=138, kernel_size=(6,7),
+                          input_shape=(6,7,2),
                            # kernel_initializer=tf.constant_initializer(kernel1),
                            # bias_initializer=tf.constant_initializer(bias1),
                            activation='relu')
@@ -79,8 +78,10 @@ def termination_model():
 
 model = tf.keras.Sequential()
 
-for layer in termination_model():
-    model.add(layer)
+# for layer in termination_model():
+# model.add(layer)
+model.add(termination_model()[0])
+model.add(termination_model()[1])
 
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
               loss='mse',
@@ -97,12 +98,14 @@ with open(file_name, newline='') as csvfile:
     reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
     for row in reader:
         labels_train.append(row[84:86])
-        boards_train.append(row[0:84])
+        boards_train.append(np.reshape(row[0:84], (6, 7, 2)))
 
 print(len(labels_train))
 
 data = np.asarray(boards_train)
 labels = np.asarray(labels_train)
+print(boards_train[0].shape)
+print(data.shape)
 
 model.fit(data, labels, epochs=500, batch_size=256)
 model.save("connect-four-positions-138-analytic-weights.h5")
