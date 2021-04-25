@@ -97,7 +97,7 @@ labels_train = []
 with open(file_name, newline='') as csvfile:
     reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
     for row in reader:
-        labels_train.append(row[84:86])
+        labels_train.append(np.reshape(row[84:86], (1, 1, 2)))
         boards_train.append(np.reshape(row[0:84], (6, 7, 2)))
 
 print(len(labels_train))
@@ -107,5 +107,5 @@ labels = np.asarray(labels_train)
 print(boards_train[0].shape)
 print(data.shape)
 
-model.fit(data, labels, epochs=500, batch_size=256)
+model.fit(data, labels, epochs=100, batch_size=256)
 model.save("connect-four-positions-138-analytic-weights.h5")
