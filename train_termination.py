@@ -14,28 +14,28 @@ def termination_model():
     for row in range(6):
         for col in range(4):
             for i in range(4):
-                kernel1[row, col + i, 0, col + 4 * row] = 2
-                kernel1[row, col + i, 1, 69 + col + 4 * row] = 2
+                kernel1[row, col + i, 0, col + 4 * row] = 1
+                kernel1[row, col + i, 1, 69 + col + 4 * row] = 1
 
     # vertical (21x)
     for row in range(3):
         for col in range(7):
             for i in range(4):
-                kernel1[row+i, col, 0, 24 + col + 7 * row] = 2
-                kernel1[row+i, col, 1, 69 + 24 + col + 7 * row] = 2
+                kernel1[row+i, col, 0, 24 + col + 7 * row] = 1
+                kernel1[row+i, col, 1, 69 + 24 + col + 7 * row] = 1
 
     # diagonal (12x)
     for row in range(3):
         for col in range(4):
             for i in range(4):
-                kernel1[row+i, col+i, 0, 45 + col + 4 * row] = 2
-                kernel1[row+i, col+i, 1, 69 + 45 + col + 4 * row] = 2
+                kernel1[row+i, col+i, 0, 45 + col + 4 * row] = 1
+                kernel1[row+i, col+i, 1, 69 + 45 + col + 4 * row] = 1
     # diagonal (12x)
     for row in range(3):
         for col in range(4):
             for i in range(4):
-                kernel1[row+i, col+3-i, 0, 57 + col + 4 * row] = 2
-                kernel1[row+i, col+3-i, 1, 69 + 57 + col + 4 * row] = 2
+                kernel1[row+i, col+3-i, 0, 57 + col + 4 * row] = 1
+                kernel1[row+i, col+3-i, 1, 69 + 57 + col + 4 * row] = 1
 
     # def plot_sums(i):
     #     print('---' + str(i) + '---' + str(np.sum(kernel1[0:84, i])))
@@ -55,7 +55,7 @@ def termination_model():
     # for i in range(138):
     #     plot_sums(i)
 
-    bias1 = -7 * np.ones([138, 1])
+    bias1 = -3 * np.ones([138, 1])
 
     label1 = np.vstack((np.ones([69, 1]), np.zeros([69, 1])))
     label2 = np.vstack((np.zeros([69, 1]), np.ones([69, 1])))
@@ -98,7 +98,8 @@ with open(file_name, newline='') as csvfile:
     reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
     for row in reader:
         labels_train.append(np.reshape(row[84:86], (1, 1, 2)))
-        boards_train.append(np.reshape(row[0:84], (6, 7, 2)))
+        # -1: is empty +1: occupied -> 0: is empty +1: occupied
+        boards_train.append((1 + np.reshape(row[0:84], (6, 7, 2)))/2)
 
 print(len(labels_train))
 
