@@ -1,79 +1,54 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import numpy as np
 import csv
 
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 
 
 def termination_model():
-    kernel1 = np.zeros([6, 7, 2, 138])
+    kernel1 = np.zeros([4, 4, 2, 8])
 
-    # horizontal (24x)
-    for row in range(6):
-        for col in range(4):
-            for i in range(4):
-                kernel1[row, col + i, 0, col + 4 * row] = 1
-                kernel1[row, col + i, 1, 69 + col + 4 * row] = 1
+    # horizontal (second row)
+    for i in range(4):
+        kernel1[1, i, 0, 0] = 1
+        kernel1[1, i, 1, 4] = 1
 
-    # vertical (21x)
-    for row in range(3):
-        for col in range(7):
-            for i in range(4):
-                kernel1[row+i, col, 0, 24 + col + 7 * row] = 1
-                kernel1[row+i, col, 1, 69 + 24 + col + 7 * row] = 1
+    # vertical (second column)
+    for i in range(4):
+        kernel1[i, 1, 0, 1] = 1
+        kernel1[i, 1, 1, 5] = 1
 
-    # diagonal (12x)
-    for row in range(3):
-        for col in range(4):
-            for i in range(4):
-                kernel1[row+i, col+i, 0, 45 + col + 4 * row] = 1
-                kernel1[row+i, col+i, 1, 69 + 45 + col + 4 * row] = 1
-    # diagonal (12x)
-    for row in range(3):
-        for col in range(4):
-            for i in range(4):
-                kernel1[row+i, col+3-i, 0, 57 + col + 4 * row] = 1
-                kernel1[row+i, col+3-i, 1, 69 + 57 + col + 4 * row] = 1
+    # diagonal
+    for i in range(4):
+        kernel1[i, i, 0, 2] = 1
+        kernel1[i, i, 1, 6] = 1
 
-    # def plot_sums(i):
-    #     print('---' + str(i) + '---' + str(np.sum(kernel1[0:84, i])))
-    #
-    #
-    # def plot(i):
-    #     print('---' + str(i) + '---')
-    #     for row in range(6):
-    #         start = 14 * row
-    #         end = start + 14
-    #         print(kernel1[start:end, i])
-    #
-    #
-    # for i in range(138):
-    #     plot(i)
-    #
-    # for i in range(138):
-    #     plot_sums(i)
+    # diagonal
+    for i in range(4):
+        kernel1[i, 3 - i, 0, 3] = 1
+        kernel1[i, 3 - i, 1, 7] = 1
 
-    bias1 = -3 * np.ones([138, 1])
+    bias1 = -3 * np.ones([8, 1])
 
-    label1 = np.vstack((np.ones([69, 1]), np.zeros([69, 1])))
-    label2 = np.vstack((np.zeros([69, 1]), np.ones([69, 1])))
-    kernel2 = np.hstack((label1, label2))
+    label1 = np.vstack((np.ones([4, 1]), np.zeros([4, 1])))
+    label2 = np.vstack((np.zeros([4, 1]), np.ones([4, 1])))
+    kernel2 = 42 * np.hstack((label1, label2))
     bias2 = np.zeros([2, 1])
 
-
-    layer1 = layers.Conv2D(filters=138, kernel_size=(6,7),
-                          input_shape=(6,7,2),
-                           # kernel_initializer=tf.constant_initializer(kernel1),
-                           # bias_initializer=tf.constant_initializer(bias1),
+    layer1 = layers.Conv2D(filters=8, kernel_size=(4, 4),
+                           input_shape=(6, 7, 2), padding='same',
+                           kernel_initializer=tf.constant_initializer(kernel1),
+                           bias_initializer=tf.constant_initializer(bias1),
                            activation='relu')
 
-    layer2 = layers.Dense(2,
-                     # kernel_initializer=tf.constant_initializer(kernel2),
-                     # bias_initializer=tf.constant_initializer(bias2)
-    )
-    return [layer1,layer2]
+    layer2 = layers.GlobalAveragePooling2D()
+    layer3 = layers.Dense(2,
+                          kernel_initializer=tf.constant_initializer(kernel2),
+                          bias_initializer=tf.constant_initializer(bias2)
+                          )
+    return [layer1, layer2, layer3]
 
 
 model = tf.keras.Sequential()
@@ -82,6 +57,7 @@ model = tf.keras.Sequential()
 # model.add(layer)
 model.add(termination_model()[0])
 model.add(termination_model()[1])
+model.add(termination_model()[2])
 
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
               loss='mse',
@@ -97,9 +73,11 @@ labels_train = []
 with open(file_name, newline='') as csvfile:
     reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
     for row in reader:
-        labels_train.append(np.reshape(row[84:86], (1, 1, 2)))
+        labels_train.append(row[84:86])
         # -1: is empty +1: occupied -> 0: is empty +1: occupied
-        boards_train.append((1 + np.reshape(row[0:84], (6, 7, 2)))/2)
+        boards_train.append((1 + np.array(row[0:84]))/2)
+
+boards_train = np.reshape(boards_train, (len(boards_train), 6, 7, 2))
 
 print(len(labels_train))
 
@@ -108,5 +86,5 @@ labels = np.asarray(labels_train)
 print(boards_train[0].shape)
 print(data.shape)
 
-model.fit(data, labels, epochs=100, batch_size=256)
+model.fit(data, labels, epochs=5, batch_size=256)
 model.save("connect-four-positions-138-analytic-weights.h5")

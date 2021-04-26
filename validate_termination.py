@@ -27,7 +27,7 @@ def run(file_name):
     # model = keras.models.load_model('connect-four-positions-138-no-activation-weights.h5')
     # model = keras.models.load_model('connect-four-positions-138-analytic-weights.h5', custom_objects={'ReLU': layers.ReLU})
     model = keras.models.load_model('connect-four-positions-138-analytic-weights.h5')
-    result = np.reshape(model.predict(data_predict.reshape((size, 6, 7, 2)), batch_size=32), (size, 2))
+    result = model.predict(data_predict.reshape((size, 6, 7, 2)), batch_size=32)
 
     def plot(i):
         print(np.hstack((labels_predict,result))[i])
