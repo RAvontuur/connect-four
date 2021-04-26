@@ -5,6 +5,7 @@ import csv
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
+from sum_pooling import GlobalSumPooling2D
 
 
 def termination_model():
@@ -34,7 +35,7 @@ def termination_model():
 
     label1 = np.vstack((np.ones([4, 1]), np.zeros([4, 1])))
     label2 = np.vstack((np.zeros([4, 1]), np.ones([4, 1])))
-    kernel2 = 42 * np.hstack((label1, label2))
+    kernel2 = np.hstack((label1, label2))
     bias2 = np.zeros([2, 1])
 
     layer1 = layers.Conv2D(filters=8, kernel_size=(4, 4),
@@ -43,7 +44,7 @@ def termination_model():
                            bias_initializer=tf.constant_initializer(bias1),
                            activation='relu')
 
-    layer2 = layers.GlobalAveragePooling2D()
+    layer2 = GlobalSumPooling2D()
     layer3 = layers.Dense(2,
                           kernel_initializer=tf.constant_initializer(kernel2),
                           bias_initializer=tf.constant_initializer(bias2)
