@@ -5,10 +5,34 @@ import csv
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
+from tensorflow.keras import regularizers
+
 from sum_pooling import GlobalSumPooling2D
 
 
-def termination_model():
+def load_data(file_name):
+    boards_train = []
+    labels_train = []
+
+    with open(file_name, newline='') as csvfile:
+        reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
+        for row in reader:
+            labels_train.append(row[84:86])
+            # -1: is empty +1: occupied -> 0: is empty +1: occupied
+            boards_train.append((1 + np.array(row[0:84])) / 2)
+
+    boards_train = np.reshape(boards_train, (len(boards_train), 6, 7, 2))
+
+    print(len(labels_train))
+
+    data = np.asarray(boards_train)
+    labels = np.asarray(labels_train)
+    print(boards_train[0].shape)
+    print(data.shape)
+    return data, labels
+
+
+def termination_model(alfa=1.0, l2=0):
     kernel1 = np.zeros([4, 4, 2, 8])
 
     # horizontal (second row)
@@ -38,54 +62,60 @@ def termination_model():
     kernel2 = np.hstack((label1, label2))
     bias2 = np.zeros([2, 1])
 
-    layer1 = layers.Conv2D(filters=8, kernel_size=(4, 4),
-                           input_shape=(6, 7, 2), padding='same',
-                           kernel_initializer=tf.constant_initializer(kernel1),
-                           bias_initializer=tf.constant_initializer(bias1),
-                           activation='relu')
+    layer1 = layers.Conv2D(filters=16, kernel_size=(4, 4),
+                           input_shape=(6, 7, 2),
+                           kernel_regularizer=regularizers.l2(l2),
+                           # kernel_initializer=tf.constant_initializer(kernel1),
+                           # bias_initializer=tf.constant_initializer(bias1),
+                           padding='same'
+                           )
 
-    layer2 = GlobalSumPooling2D()
-    layer3 = layers.Dense(2,
-                          kernel_initializer=tf.constant_initializer(kernel2),
-                          bias_initializer=tf.constant_initializer(bias2)
+    layer2 = layers.LeakyReLU(alpha=alfa)
+    # layer2 = layers.ReLU()
+    layer3 = GlobalSumPooling2D()
+    layer4 = layers.Dense(2,
+                          # activation='relu',
+                          # kernel_initializer=tf.constant_initializer(kernel2),
+                          # bias_initializer=tf.constant_initializer(bias2)
                           )
-    return [layer1, layer2, layer3]
+    # layer4.trainable = False
+    return [layer1, layer2, layer3, layer4]
 
 
-model = tf.keras.Sequential()
+def create_model(alfa, l2):
+    model = tf.keras.Sequential()
 
-# for layer in termination_model():
-# model.add(layer)
-model.add(termination_model()[0])
-model.add(termination_model()[1])
-model.add(termination_model()[2])
+    for layer in termination_model(alfa=alfa, l2=l2):
+        print(layer)
+        model.add(layer)
 
-model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-              loss='mse',
-              metrics=['mae'])
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+                  loss='mse',
+                  metrics=['mae'])
+    return model
 
-model.summary()
 
-file_name = 'rollouts-filtered.csv'
+[data, labels] = load_data('rollouts-filtered.csv')
 
-boards_train = []
-labels_train = []
+first_time = True
+alfa = 1.0
+l2 = 0.01
+for i in range(20):
+    print("i: {}, alfa: {}, l2: {}".format(i, alfa, l2))
+    model = create_model(alfa=alfa, l2=l2)
+    if not first_time:
+        model.load_weights("temp.h5")
+    model.fit(data, labels, epochs=5, batch_size=256)
+    model.save("temp.h5")
+    first_time = False
+    alfa = alfa / 5
+    l2 = l2 / 1.5
+    if i > 15:
+        alfa = 0
+        l2 = 0
 
-with open(file_name, newline='') as csvfile:
-    reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
-    for row in reader:
-        labels_train.append(row[84:86])
-        # -1: is empty +1: occupied -> 0: is empty +1: occupied
-        boards_train.append((1 + np.array(row[0:84]))/2)
+# model = create_model(alfa=0, l2=0)
+# model.load_weights("temp.h5")
+# model.fit(data, labels, epochs=20, batch_size=256)
 
-boards_train = np.reshape(boards_train, (len(boards_train), 6, 7, 2))
-
-print(len(labels_train))
-
-data = np.asarray(boards_train)
-labels = np.asarray(labels_train)
-print(boards_train[0].shape)
-print(data.shape)
-
-model.fit(data, labels, epochs=5, batch_size=256)
 model.save("connect-four-positions-138-analytic-weights.h5")
