@@ -71,7 +71,7 @@ def run():
 print("starting")
 # player1 = PlayerMonteCarlo(1, rollout_player=PlayerRandom())
 player1 = PlayerPolicy("policy")
-player2 = PlayerMonteCarlo(10, rollout_player=PlayerRandom())
+player2 = PlayerMonteCarlo(22, rollout_player=PlayerRandom())
 run()
 
 
