@@ -17,7 +17,8 @@ class ConnectFourEnvironment():
         self.player = 1
         self.last_action = None
         self.move_count = 0
-        self.state = np.zeros(shape=(7, 6))
+        # np.int64 is as fast as float64, and 64-bit is faster than the smaller types:
+        self.state = np.zeros(shape=(7, 6), dtype=np.int64)
         self.connect_four = []
         self.connect_four_count = 0
 

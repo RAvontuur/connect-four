@@ -1,2 +1,7 @@
-numpy~=1.17.0
+numpy==1.20.3
+imageio==2.4.0
+pyvirtualdisplay
+tf-agents-nightly
+tf-nightly
+
 

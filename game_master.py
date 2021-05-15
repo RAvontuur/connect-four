@@ -2,8 +2,9 @@ import time
 from environment import ConnectFourEnvironment
 from player_montecarlo import PlayerMonteCarlo
 from player_random import PlayerRandom
+from player_policy import PlayerPolicy
 
-number_of_plays = 10
+number_of_plays = 100
 show_play = False
 show_final_play = True
 show_intermediate_result = True
@@ -57,19 +58,20 @@ def run():
             print("results: " + str(result_1) + " - " + str(result_2))
         elapsed = time.time() * 1000 - start
         start_tot += elapsed
-        # print("took (ms): " + str(int(elapsed)))
+        print("took (ms): " + str(int(elapsed)))
 
         i += 1
 
     if not show_intermediate_result:
         print("results: " + str(result_1) + " - " + str(result_2))
 
-    print("took (ms): " + str(start_tot/(i-1)))
+    print("took (ms): " + str(start_tot))
 
 
 print("starting")
-player1 = PlayerMonteCarlo(1000, rollout_player=PlayerRandom())
-player2 = PlayerMonteCarlo(10000, rollout_player=PlayerRandom())
+# player1 = PlayerMonteCarlo(1, rollout_player=PlayerRandom())
+player1 = PlayerPolicy("policy")
+player2 = PlayerMonteCarlo(10, rollout_player=PlayerRandom())
 run()
 
 

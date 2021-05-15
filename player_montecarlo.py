@@ -11,14 +11,6 @@ class PlayerMonteCarlo(Player):
         self.rollout_player = rollout_player
         self._mcts: MonteCarloTreeSearch = None
 
-    def action_values(self, env: ConnectFourEnvironment):
-        assert (not env.terminated)
-        root = MonteCarloTreeSearchNode(parent=None, action_value=0.0, state=env)
-        mcts = MonteCarloTreeSearch(root, self.rollout_player)
-        self._mcts = mcts
-
-        return mcts.root_nodes.choices_q_norm()
-
     def play(self, env: ConnectFourEnvironment):
         self._mcts = None
         assert (not env.terminated)

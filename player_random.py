@@ -5,13 +5,6 @@ from player import Player
 
 class PlayerRandom(Player):
 
-    def action_values(self, env: ConnectFourEnvironment):
-        result = [-1.0] * 7
-        for a in env.get_legal_actions():
-            result[a] = 0.0
-
-        return result
-
     def play(self, env: ConnectFourEnvironment, untried_actions = None):
         assert(not env.terminated)
 
