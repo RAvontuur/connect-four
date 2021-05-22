@@ -21,7 +21,7 @@ class ConnectFourPyEnv(py_environment.PyEnvironment):
     def __init__(self):
         super().__init__()
         self._action_spec = array_spec.BoundedArraySpec(
-            shape=[1], dtype=np.int64, minimum=0, maximum=6, name='action')
+            shape=(), dtype=np.int64, minimum=0, maximum=6, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=(7, 6), dtype=np.int64, minimum=-1, maximum=1, name='observation')
         self._env = ConnectFourEnvironment()
@@ -29,7 +29,7 @@ class ConnectFourPyEnv(py_environment.PyEnvironment):
         # self._player_assistant: PlayerMonteCarlo = PlayerMonteCarlo(1000, rollout_player=PlayerRandom())
 
     def set_number_of_simulations(self, n):
-        print("number of simulations: {}".format(n))
+        # print("number of simulations: {}".format(n))
         self._player_opponent.number_of_simulations = n
 
     def action_spec(self):
@@ -47,7 +47,7 @@ class ConnectFourPyEnv(py_environment.PyEnvironment):
 
     def _step(self, action):
 
-        action_policy = action[0]
+        action_policy = action.min()
         if self._env.is_game_over():
             # The last action ended the episode. Ignore the current action and start
             # a new episode.
@@ -58,7 +58,7 @@ class ConnectFourPyEnv(py_environment.PyEnvironment):
         self._env.move(action_policy)
 
         if self._env.is_game_over():
-            print(self._env.display())
+            # print(self._env.display())
             reward = self._env.game_result(1)
             return ts.termination(self._to_observation(self._env), reward)
 
@@ -67,7 +67,7 @@ class ConnectFourPyEnv(py_environment.PyEnvironment):
         env, action = self._player_opponent.play(self._env)
 
         if env.is_game_over():
-            print(env.display())
+            # print(env.display())
             reward = env.game_result(1)
             self._env = env
             return ts.termination(self._to_observation(env), reward)

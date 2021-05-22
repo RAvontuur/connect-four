@@ -18,7 +18,7 @@ class MonteCarloTreeSearch:
                 node = self.tree_policy()
 
             if self.root.analyzed_result is not None:
-                print("Fully analyzed after: " + str(i))
+                # print("Fully analyzed after: " + str(i))
                 break
 
             result = self.rollout(node)

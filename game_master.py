@@ -4,19 +4,24 @@ from player_montecarlo import PlayerMonteCarlo
 from player_random import PlayerRandom
 from player_policy import PlayerPolicy
 
-number_of_plays = 100
-show_play = False
-show_final_play = True
-show_intermediate_result = True
-show_analyzed_play = True
 
-def run():
+show_play = False
+show_final_play = False
+show_intermediate_result = False
+show_analyzed_play = False
+
+
+def run(player1, player2, number_of_plays = 100, evaluate2=False, evaluate2_factor = 1):
     result_1 = 0.
     result_2 = 0.
 
     i = 1
     start_tot = 0
     while i <= number_of_plays:
+
+        if evaluate2:
+            player2.number_of_simulations = 1 + int(i * evaluate2_factor)
+
         start = time.time() * 1000
         if show_intermediate_result:
             print("play " + str(i) + " starts")
@@ -54,11 +59,13 @@ def run():
             result_1 += 0.5
             result_2 += 0.5
 
-        if show_intermediate_result:
-            print("results: " + str(result_1) + " - " + str(result_2))
+
         elapsed = time.time() * 1000 - start
         start_tot += elapsed
-        print("took (ms): " + str(int(elapsed)))
+
+        if show_intermediate_result:
+            print("results: " + str(result_1) + " - " + str(result_2))
+            print("took (ms): " + str(int(elapsed)))
 
         i += 1
 
@@ -66,12 +73,20 @@ def run():
         print("results: " + str(result_1) + " - " + str(result_2))
 
     print("took (ms): " + str(start_tot))
+    return result_1 * evaluate2_factor
 
 
-print("starting")
-# player1 = PlayerMonteCarlo(1, rollout_player=PlayerRandom())
-player1 = PlayerPolicy("policy")
-player2 = PlayerMonteCarlo(22, rollout_player=PlayerRandom())
-run()
+def evaluation_run():
 
+    print("starting")
+    # player1 = PlayerMonteCarlo(1, rollout_player=PlayerRandom())
+    player1 = PlayerPolicy("policy")
+    player2 = PlayerMonteCarlo(1, rollout_player=PlayerRandom())
+
+    result = run(player1, player2, number_of_plays = 2000, evaluate2=True, evaluate2_factor=0.02)
+    print("Estimated strength player 1: " + str(result))
+    return result
+
+
+evaluation_run()
 

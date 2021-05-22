@@ -19,4 +19,4 @@ class PlayerPolicy(Player):
                                 discount=tf.constant(value=[0.0], dtype=tf.float32))
         action_step = self.policy.action(time_step)
 
-        return env.move(action_step.action.numpy()[0,0]), action_step.action.numpy()[0,0]
+        return env.move(action_step.action.numpy()[0]), action_step.action.numpy()[0]
