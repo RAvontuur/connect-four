@@ -126,7 +126,7 @@ agent.train = common.function(agent.train)
 
 for _ in range(num_iterations):
     step = agent.train_step_counter.numpy()
-    train_py_env.set_number_of_simulations(5 k+ int(step / 200))
+    train_py_env.set_number_of_simulations(5 + int(step / 200))
 
     # Collect a few steps using collect_policy and save to the replay buffer.
     for _ in range(collect_steps_per_iteration):
