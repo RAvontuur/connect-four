@@ -216,6 +216,7 @@ class ConnectFourEnvironment():
             else:
                 break
 
+        self.connect_four = []
         if left + right + 1 >= 4:
             left_pos = action - left + (7 * action_row)
             self.connect_four.append(left_pos)
@@ -235,7 +236,6 @@ class ConnectFourEnvironment():
 
         if up + down + 1 >= 4:
             down_pos = action + (7 * (action_row - down))
-            self.connect_four = []
             self.connect_four.append(down_pos)
             self.connect_four.append(down_pos + 7)
             self.connect_four.append(down_pos + 14)
@@ -244,7 +244,6 @@ class ConnectFourEnvironment():
 
         if left_up + right_down + 1 >= 4:
             right_down_pos = action + right_down + (7 * (action_row - right_down))
-            self.connect_four = []
             self.connect_four.append(right_down_pos)
             self.connect_four.append(right_down_pos + 6)
             self.connect_four.append(right_down_pos + 12)
@@ -259,7 +258,6 @@ class ConnectFourEnvironment():
 
         if left_down + right_up + 1 >= 4:
             left_down_pos = action - left_down + (7 * (action_row - left_down))
-            self.connect_four = []
             self.connect_four.append(left_down_pos)
             self.connect_four.append(left_down_pos + 8)
             self.connect_four.append(left_down_pos + 16)
