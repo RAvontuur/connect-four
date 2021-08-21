@@ -9,7 +9,7 @@ from environment import ConnectFourEnvironment
 from player_montecarlo import PlayerMonteCarlo
 from player_random import PlayerRandom
 
-print("Starting serv.py")
+print("Starting app.py")
 
 app = Flask(__name__, instance_path="/{project_folder_abs_path}")
 CORS(app, resources=r'/play/*')
