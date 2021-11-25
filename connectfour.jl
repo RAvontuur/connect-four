@@ -29,11 +29,12 @@ module connectfour
         terminated
         illegal_action
         move_count
+        connect_four
         connect_four_count
     end
 
     function create_env()
-        return Environment(1, zeros(Int8, 7, 6), 0, 0, false, false, 0, 0)
+        return Environment(1, zeros(Int8, 7, 6), 0, 0, false, false, 0, zeros(Int8, 0), 0)
     end
 
     function finish(self, result, terminate = false, illegal = false)
@@ -70,14 +71,13 @@ module connectfour
             return false
         end
 
-        left = 1
-        right = 1
-        up = 1
-        down = 1
-        left_up = 1
-        left_down = 1
-        right_up = 1
-        right_down = 1
+        left = 0
+        right = 0
+        down = 0
+        left_up = 0
+        left_down = 0
+        right_up = 0
+        right_down = 0
 
         col = action - 1
         while col >= 1
@@ -157,69 +157,55 @@ module connectfour
             end
         end
 
+        self.connect_four_count = 0
         if left + right + 1 >= 4
-            left_pos = action - left + (7 * action_row)
-#             self.connect_four.append(left_pos)
-#             self.connect_four.append(left_pos + 1)
-#             self.connect_four.append(left_pos + 2)
-#             self.connect_four.append(left_pos + 3)
+            left_pos = action - left + (7 * (action_row - 1))
+            self.connect_four = self.connect_four = append!(self.connect_four, [left_pos, left_pos + 1, left_pos + 2, left_pos + 3])
             self.connect_four_count+=1
             if left + right + 1 >= 5
                 self.connect_four_count+=1
-#                 self.connect_four.append(left_pos + 4)
+                self.connect_four = append!(self.connect_four, [left_pos + 4])
             end
             if left + right + 1 >= 6
                 self.connect_four_count+=1
-#                 self.connect_four.append(left_pos + 5)
+                self.connect_four = append!(self.connect_four, [left_pos + 5])
             end
             if left + right + 1 >= 7
                 self.connect_four_count+=1
-#                 self.connect_four.append(left_pos + 6)
+                self.connect_four = append!(self.connect_four, [left_pos + 6])
             end
         end
 
-        if up + down + 1 >= 4
-            down_pos = action + (7 * (action_row - down))
-#             self.connect_four = []
-#             self.connect_four.append(down_pos)
-#             self.connect_four.append(down_pos + 7)
-#             self.connect_four.append(down_pos + 14)
-#             self.connect_four.append(down_pos + 21)
+        if down + 1 >= 4
+            down_pos = action + (7 * (action_row - down - 1))
+            self.connect_four = append!(self.connect_four, [down_pos, down_pos + 7, down_pos + 14, down_pos + 21])
             self.connect_four_count+=1
         end
 
         if left_up + right_down + 1 >= 4
-            right_down_pos = action + right_down + (7 * (action_row - right_down))
-#             self.connect_four = []
-#             self.connect_four.append(right_down_pos)
-#             self.connect_four.append(right_down_pos + 6)
-#             self.connect_four.append(right_down_pos + 12)
-#             self.connect_four.append(right_down_pos + 18)
+            right_down_pos = action + right_down + (7 * (action_row - right_down - 1))
+            self.connect_four = append!(self.connect_four, [right_down_pos, right_down_pos + 6, right_down_pos + 12, right_down_pos + 18])
             self.connect_four_count+=1
             if left_up + right_down + 1 >= 5
-#                 self.connect_four.append(right_down_pos + 24)
+                self.connect_four = append!(self.connect_four, [right_down_pos + 24])
                 self.connect_four_count+=1
             end
             if left_up + right_down + 1 >= 6
-#                 self.connect_four.append(right_down_pos + 30)
+                self.connect_four = append!(self.connect_four, [right_down_pos + 30])
                 self.connect_four_count+=1
             end
         end
 
         if left_down + right_up + 1 >= 4
-            left_down_pos = action - left_down + (7 * (action_row - left_down))
-#             self.connect_four = []
-#             self.connect_four.append(left_down_pos)
-#             self.connect_four.append(left_down_pos + 8)
-#             self.connect_four.append(left_down_pos + 16)
-#             self.connect_four.append(left_down_pos + 24)
+            left_down_pos = action - left_down + (7 * (action_row - left_down - 1))
+            self.connect_four = append!(self.connect_four, [left_down_pos, left_down_pos + 8, left_down_pos + 16, left_down_pos + 24])
             self.connect_four_count+=1
             if left_down + right_up + 1 >= 5
-#                 self.connect_four.append(left_down_pos + 32)
+                self.connect_four = append!(self.connect_four, [left_down_pos + 32])
                 self.connect_four_count+=1
             end
             if left_down + right_up + 1 >= 6
-#                 self.connect_four.append(left_down_pos + 40)
+                self.connect_four = append!(self.connect_four, [left_down_pos + 40])
                 self.connect_four_count+=1
             end
         end
