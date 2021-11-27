@@ -1,5 +1,5 @@
 """
-# module connectfour
+# module ConnectFourEnvironment
 
 - Julia version: 
 - Author: ravontuur
@@ -11,7 +11,7 @@
 julia>
 ```
 """
-module connectfour
+module ConnectFourEnvironment
 
     export WIN_REWARD, ILLEGAL_MOVE_PENALTY, NOT_LOSS
     export Environment
@@ -21,16 +21,18 @@ module connectfour
     const ILLEGAL_MOVE_PENALTY = -1
     const NOT_LOSS = 0
 
+    State = Matrix{Int8}
+
     mutable struct Environment
-        player
-        state
-        last_action
-        reward
-        terminated
-        illegal_action
-        move_count
-        connect_four
-        connect_four_count
+        player::Int8  # 1 = first player, -1 = second player
+        state::State
+        last_action::Int8
+        reward::Int8
+        terminated::Bool
+        illegal_action::Bool
+        move_count::Int8
+        connect_four::Array{Int8}
+        connect_four_count::Int8
     end
 
     function create_env()
@@ -47,7 +49,7 @@ module connectfour
     end
 
     function apply_move(self, action)
-        for row in range(1, length = 6)
+        for row in 1:7
             if self.state[action, row] == 0
                 self.state[action, row] = self.player
                 return self
@@ -160,52 +162,52 @@ module connectfour
         self.connect_four_count = 0
         if left + right + 1 >= 4
             left_pos = action - left + (7 * (action_row - 1))
-            self.connect_four = self.connect_four = append!(self.connect_four, [left_pos, left_pos + 1, left_pos + 2, left_pos + 3])
+            push!(self.connect_four, left_pos, left_pos + 1, left_pos + 2, left_pos + 3)
             self.connect_four_count+=1
             if left + right + 1 >= 5
                 self.connect_four_count+=1
-                self.connect_four = append!(self.connect_four, [left_pos + 4])
+                push!(self.connect_four, left_pos + 4)
             end
             if left + right + 1 >= 6
                 self.connect_four_count+=1
-                self.connect_four = append!(self.connect_four, [left_pos + 5])
+                push!(self.connect_four, left_pos + 5)
             end
             if left + right + 1 >= 7
                 self.connect_four_count+=1
-                self.connect_four = append!(self.connect_four, [left_pos + 6])
+                push!(self.connect_four, left_pos + 6)
             end
         end
 
         if down + 1 >= 4
             down_pos = action + (7 * (action_row - down - 1))
-            self.connect_four = append!(self.connect_four, [down_pos, down_pos + 7, down_pos + 14, down_pos + 21])
+            push!(self.connect_four, down_pos, down_pos + 7, down_pos + 14, down_pos + 21)
             self.connect_four_count+=1
         end
 
         if left_up + right_down + 1 >= 4
             right_down_pos = action + right_down + (7 * (action_row - right_down - 1))
-            self.connect_four = append!(self.connect_four, [right_down_pos, right_down_pos + 6, right_down_pos + 12, right_down_pos + 18])
+            push!(self.connect_four, right_down_pos, right_down_pos + 6, right_down_pos + 12, right_down_pos + 18)
             self.connect_four_count+=1
             if left_up + right_down + 1 >= 5
-                self.connect_four = append!(self.connect_four, [right_down_pos + 24])
+                push!(self.connect_four, right_down_pos + 24)
                 self.connect_four_count+=1
             end
             if left_up + right_down + 1 >= 6
-                self.connect_four = append!(self.connect_four, [right_down_pos + 30])
+                push!(self.connect_four, right_down_pos + 30)
                 self.connect_four_count+=1
             end
         end
 
         if left_down + right_up + 1 >= 4
             left_down_pos = action - left_down + (7 * (action_row - left_down - 1))
-            self.connect_four = append!(self.connect_four, [left_down_pos, left_down_pos + 8, left_down_pos + 16, left_down_pos + 24])
+            push!(self.connect_four, left_down_pos, left_down_pos + 8, left_down_pos + 16, left_down_pos + 24)
             self.connect_four_count+=1
             if left_down + right_up + 1 >= 5
-                self.connect_four = append!(self.connect_four, [left_down_pos + 32])
+                push!(self.connect_four, left_down_pos + 32)
                 self.connect_four_count+=1
             end
             if left_down + right_up + 1 >= 6
-                self.connect_four = append!(self.connect_four, [left_down_pos + 40])
+                push!(self.connect_four, left_down_pos + 40)
                 self.connect_four_count+=1
             end
         end
