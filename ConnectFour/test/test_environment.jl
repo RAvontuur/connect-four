@@ -5,7 +5,7 @@ play:
 - Date: 2021-11-24
 =#
 
-include("ConnectFourEnvironment.jl")
+import ConnectFour.ConnectFourEnvironment
 
 # test illegal move
 env = ConnectFourEnvironment.create_env()

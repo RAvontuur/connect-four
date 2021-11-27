@@ -7,11 +7,11 @@ PlayerRandom
 
 module PlayerRandom
 
-    import ConnectFourEnvironment
-    import MonteCarloTreeSearch
-
     export Player
     export create_player, play
+
+    import ConnectFour.ConnectFourEnvironment.Environment
+    import ConnectFour.ConnectFourEnvironment.move
 
     mutable struct Player
         name
@@ -29,19 +29,19 @@ module PlayerRandom
 #
 #         return result
 
-    function play(self::Player, env::connectfour.Environment, untried_actions = missing)
+    function play(self::Player, env::Environment, untried_actions = missing)
         @assert env.terminated == false
 
-        if untried_actions == missing
-            free_columns = connectfour.get_legal_actions(env)
-            random.shuffle(free_columns)
-        else
-            free_columns = untried_actions
-        end
+#         if untried_actions == missing
+#             free_columns = ConnectFourEnvironment.get_legal_actions(env)
+#             random.shuffle(free_columns)
+#         else
+#             free_columns = untried_actions
+#         end
 
-        action = random.choice(free_columns)
+#         action = random.choice(free_columns)
 
-        return move(env, action), action
+        return move(env, action)#, action
 
     end
 end

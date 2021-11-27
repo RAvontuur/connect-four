@@ -6,15 +6,16 @@ MonteCarloTreeSearch:
 =#
 
 module MonteCarloTreeSearch
-    import ConnectFourEnvironment
 
     export Node
     export create_node
 
+    import ConnectFour.ConnectFourEnvironment.Environment
+
     mutable struct Node
         parent::Union{Node, Missing}
         children::Array{Node}
-        state::Main.connectfour.Environment
+        state::Environment
         action
         action_value
         results
