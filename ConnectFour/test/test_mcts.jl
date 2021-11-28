@@ -5,8 +5,12 @@ test_mcts:
 - Date: 2021-11-25
 =#
 
-import ConnectFour.ConnectFourEnvironment
-import ConnectFour.MonteCarloTreeSearch
+module MonteCarloTreeSearchTests
 
-state = ConnectFourEnvironment.create_env()
-root_node = MonteCarloTreeSearch.create_node(state, missing, 3, 1)
+    using ConnectFour.ConnectFourEnvironment
+    using ConnectFour.MonteCarloTreeSearch
+
+    state = create_env()
+    root_node = create_node(state, missing, 3, 1)
+
+end

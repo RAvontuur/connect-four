@@ -5,13 +5,15 @@ test_player_random:
 - Date: 2021-11-26
 =#
 
-import ConnectFour.ConnectFourEnvironment
-import ConnectFour.PlayerRandom
+module PlayerRandomTests
+    using ConnectFour.ConnectFourEnvironment
+    using ConnectFour.PlayerRandom
 
-player = PlayerRandom.create_player("player-1")
-env = ConnectFourEnvironment.create_env()
+    local player::PlayerRandom.Player = create_player("player-1")
+    local env::ConnectFourEnvironment.Environment = create_env()
 
-# while env.terminated == false
-#     PlayerRandom.play(player, env)
-#     println(env)
-# end
+    # while env.terminated == false
+    #     PlayerRandom.play(player, env)
+    #     println(env)
+    # end
+end

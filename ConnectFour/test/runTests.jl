@@ -7,6 +7,8 @@ runTests:
 
 using Test
 
-include("test_environment.jl")
-include("test_mcts.jl")
-include("test_player_random.jl")
+module ConnectFourTests
+    include("test_environment.jl")
+    include("test_mcts.jl")
+    include("test_player_random.jl")
+end

@@ -7,11 +7,10 @@ PlayerRandom
 
 module PlayerRandom
 
+    using ConnectFour.ConnectFourEnvironment
+
     export Player
     export create_player, play
-
-    import ConnectFour.ConnectFourEnvironment.Environment
-    import ConnectFour.ConnectFourEnvironment.move
 
     mutable struct Player
         name

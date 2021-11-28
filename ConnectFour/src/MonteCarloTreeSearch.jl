@@ -7,10 +7,10 @@ MonteCarloTreeSearch:
 
 module MonteCarloTreeSearch
 
+    using ConnectFour.ConnectFourEnvironment
+
     export Node
     export create_node
-
-    import ConnectFour.ConnectFourEnvironment.Environment
 
     mutable struct Node
         parent::Union{Node, Missing}
