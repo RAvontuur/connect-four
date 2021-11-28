@@ -15,7 +15,7 @@ module ConnectFourEnvironment
 
     export WIN_REWARD, ILLEGAL_MOVE_PENALTY, NOT_LOSS
     export Environment
-    export create_env, move
+    export create_env, move, get_legal_actions
 
     const WIN_REWARD = 1
     const ILLEGAL_MOVE_PENALTY = -1
@@ -215,7 +215,7 @@ module ConnectFourEnvironment
         return self.connect_four_count > 0
     end
 
-    function move(self, action)
+    function move(self::Environment, action)
         self.last_action = action
         if self.state[action, 6] != 0
             return finish(self, ILLEGAL_MOVE_PENALTY, true, true)
@@ -231,4 +231,7 @@ module ConnectFourEnvironment
         return finish(self, NOT_LOSS)
     end
 
+    function get_legal_actions(self::Environment)
+        return [1,2,3,4,5,6,7]
+    end
 end

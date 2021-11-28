@@ -9,6 +9,8 @@ module PlayerRandom
 
     using ConnectFour.ConnectFourEnvironment
 
+    using Random
+
     export Player
     export create_player, play
 
@@ -28,19 +30,19 @@ module PlayerRandom
 #
 #         return result
 
-    function play(self::Player, env::Environment, untried_actions = missing)
+    function play(self::Player, env)  #; untried_actions = missing)
         @assert env.terminated == false
 
 #         if untried_actions == missing
-#             free_columns = ConnectFourEnvironment.get_legal_actions(env)
-#             random.shuffle(free_columns)
+        free_columns = ConnectFourEnvironment.get_legal_actions(env)
 #         else
-#             free_columns = untried_actions
+#        free_columns = untried_actions
 #         end
 
-#         action = random.choice(free_columns)
-
-        return move(env, action)#, action
+        shuffle!(free_columns)
+        println("actions: ", free_columns)
+        action = free_columns[1]
+        return move(env, action), action
 
     end
 end

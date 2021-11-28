@@ -9,11 +9,12 @@ module PlayerRandomTests
     using ConnectFour.ConnectFourEnvironment
     using ConnectFour.PlayerRandom
 
-    local player::PlayerRandom.Player = create_player("player-1")
-    local env::ConnectFourEnvironment.Environment = create_env()
-
-    # while env.terminated == false
-    #     PlayerRandom.play(player, env)
-    #     println(env)
-    # end
+    player = create_player("player-1")
+    env = create_env()
+    println("start playing")
+    while env.terminated == false
+        global env, action = PlayerRandom.play(player, env)
+        println("action: ", action)
+        println(env)
+    end
 end
