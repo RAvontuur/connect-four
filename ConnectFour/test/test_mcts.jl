@@ -9,8 +9,14 @@ module MonteCarloTreeSearchTests
 
     using ConnectFour.ConnectFourEnvironment
     using ConnectFour.MonteCarloTreeSearch
+    using ConnectFour.PlayerRandom
 
+
+    println("Start MonteCarloTreeSearchTests")
     state = create_env()
-    root_node = create_node(state, missing, 3, 1)
+    player = create_player("rollout-player")
+    root_node = create_node(state, missing, missing, 0.0)
 
+    result = best_child(root_node, player, 10)
+    println("result: ", result)
 end

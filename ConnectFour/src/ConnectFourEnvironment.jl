@@ -15,7 +15,7 @@ module ConnectFourEnvironment
 
     export WIN_REWARD, ILLEGAL_MOVE_PENALTY, NOT_LOSS
     export Environment
-    export create_env, move, get_legal_actions
+    export create_env, create_copy, move, get_legal_actions, game_result
 
     const WIN_REWARD = 1
     const DRAW_REWARD = 0
@@ -36,9 +36,55 @@ module ConnectFourEnvironment
         connect_four_count::Int8
     end
 
+    #----------------------------------------------------------------
+    # public, exported methods
+
     function create_env()
         return Environment(1, zeros(Int8, 7, 6), 0, 0, false, false, 0, zeros(Int8, 0), 0)
     end
+
+    function create_copy(env::Environment)
+        return Environment(env.player, copy(env.state), env.last_action, env.reward,
+            env.terminated, env.illegal_action, env.move_count,
+            copy(env.connect_four), env.connect_four_count)
+    end
+
+    function move(self::Environment, action)
+        self.last_action = action
+        if self.state[action, 6] != 0
+            return finish(self, ILLEGAL_MOVE_PENALTY, true, true)
+        end
+
+        # Did player win
+        if is_winning_action(self, self.player, action)
+            apply_move(self, action)
+            return finish(self, WIN_REWARD, true)
+        end
+
+        self = apply_move(self, action)
+
+        if all_occupied(self)
+            return finish(self, DRAW_REWARD, true)
+        end
+        return finish(self, NOT_LOSS)
+    end
+
+    function get_legal_actions(self::Environment)
+        free_columns = []
+        for col in 1:7
+            if self.state[col, 6] == 0
+                push!(free_columns, col)
+            end
+        end
+        return free_columns
+    end
+
+    function game_result(self, player)
+        self.reward * self.player * player
+    end
+
+    #----------------------------------------------------------------
+    # private, not-exported methods
 
     function finish(self, result, terminate = false, illegal = false)
         self.illegal_action = illegal
@@ -223,35 +269,5 @@ module ConnectFourEnvironment
             end
         end
         return true
-    end
-
-    function move(self::Environment, action)
-        self.last_action = action
-        if self.state[action, 6] != 0
-            return finish(self, ILLEGAL_MOVE_PENALTY, true, true)
-        end
-
-        # Did player win
-        if is_winning_action(self, self.player, action)
-            apply_move(self, action)
-            return finish(self, WIN_REWARD, true)
-        end
-
-        self = apply_move(self, action)
-
-        if all_occupied(self)
-            return finish(self, DRAW_REWARD, true)
-        end
-        return finish(self, NOT_LOSS)
-    end
-
-    function get_legal_actions(self::Environment)
-        free_columns = []
-        for col in 1:7
-            if self.state[col, 6] == 0
-                push!(free_columns, col)
-            end
-        end
-        return free_columns
     end
 end

@@ -172,4 +172,21 @@ module ConnectFourEnvironmentTests
     @assert env.move_count == 42
     @assert env.connect_four == Int8[]
     @assert env.connect_four_count == 0
+
+    env = create_env()
+    @assert env.move_count == 0
+    @assert env.state[1,1] == 0
+    copy = create_copy(env)
+    @assert copy.move_count == 0
+    @assert copy.state[1,1] == 0
+
+    move(copy,1)
+    # env should not change
+    @assert env.move_count == 0
+    @assert env.state[1,1] == 0
+    # copy should change
+    @assert copy.move_count == 1
+    @assert copy.state[1,1] == 1
+
+
 end
