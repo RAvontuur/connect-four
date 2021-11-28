@@ -145,4 +145,31 @@ module ConnectFourEnvironmentTests
     @assert env.move_count == 11
     @assert env.connect_four == Int8[7,13,19,25]
     @assert env.connect_four_count == 1
+
+    # test draw, all occupied
+    env = create_env()
+    move(env,1);move(env,2);move(env,1);move(env,2);move(env,1);move(env,2);
+    move(env,3);move(env,4);move(env,3);move(env,4);move(env,3);move(env,4);
+    move(env,5);move(env,6);move(env,5);move(env,6);move(env,5);move(env,6);
+    @assert env.move_count == 18
+    @assert env.terminated == false
+    move(env,7);move(env,1);move(env,7);move(env,1);move(env,7);move(env,1);
+    move(env,2);move(env,3);move(env,2);move(env,3);move(env,2);move(env,3);
+    move(env,4);move(env,5);move(env,4);move(env,5);move(env,4);move(env,5);
+    @assert env.move_count == 36
+    @assert env.terminated == false
+    move(env,6);move(env,7);move(env,6);move(env,7);move(env,6);
+    println(env)
+    @assert env.move_count == 41
+    @assert env.terminated == false
+
+    move(env,7);
+    println(env)
+    @assert env.terminated == true
+    @assert env.illegal_action == false
+    @assert env.player == 1
+    @assert env.reward == 0
+    @assert env.move_count == 42
+    @assert env.connect_four == Int8[]
+    @assert env.connect_four_count == 0
 end

@@ -18,6 +18,7 @@ module ConnectFourEnvironment
     export create_env, move, get_legal_actions
 
     const WIN_REWARD = 1
+    const DRAW_REWARD = 0
     const ILLEGAL_MOVE_PENALTY = -1
     const NOT_LOSS = 0
 
@@ -215,6 +216,15 @@ module ConnectFourEnvironment
         return self.connect_four_count > 0
     end
 
+    function all_occupied(self)
+        for col in 1:7
+            if self.state[col, 6] == 0
+                return false
+            end
+        end
+        return true
+    end
+
     function move(self::Environment, action)
         self.last_action = action
         if self.state[action, 6] != 0
@@ -228,10 +238,20 @@ module ConnectFourEnvironment
         end
 
         self = apply_move(self, action)
+
+        if all_occupied(self)
+            return finish(self, DRAW_REWARD, true)
+        end
         return finish(self, NOT_LOSS)
     end
 
     function get_legal_actions(self::Environment)
-        return [1,2,3,4,5,6,7]
+        free_columns = []
+        for col in 1:7
+            if self.state[col, 6] == 0
+                push!(free_columns, col)
+            end
+        end
+        return free_columns
     end
 end
