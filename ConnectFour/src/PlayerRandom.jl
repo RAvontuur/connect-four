@@ -14,6 +14,8 @@ module PlayerRandom
     export Player
     export create_player, play
 
+    OptionalActions = Union{Array{Int8},Missing}
+
     mutable struct Player
         name
     end
@@ -22,22 +24,14 @@ module PlayerRandom
         return Player(name)
     end
 
-#     function action_values(env :: connectfour.Environment):
-#         result = [-1.0] * 7
-#         for a in env.get_legal_actions()
-#             result[a] = 0.0
-#         end
-#
-#         return result
-
-    function play(self::Player, env)  #; untried_actions = missing)
+    function play(self::Player, env::Environment, untried_actions::OptionalActions = missing)
         @assert env.terminated == false
 
-#         if untried_actions == missing
-        free_columns = ConnectFourEnvironment.get_legal_actions(env)
-#         else
-#        free_columns = untried_actions
-#         end
+        if ismissing(untried_actions) == true
+            free_columns = get_legal_actions(env)
+        else
+            free_columns = untried_actions
+        end
 
         shuffle!(free_columns)
         println("actions: ", free_columns)

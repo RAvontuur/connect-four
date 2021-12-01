@@ -18,5 +18,6 @@ module MonteCarloTreeSearchTests
     root_node = create_node(state, missing, missing, 0.0)
 
     result = best_child(root_node, player, 10)
+    println("best move: ",  result.state.last_action)
     println("result: ", result)
 end
