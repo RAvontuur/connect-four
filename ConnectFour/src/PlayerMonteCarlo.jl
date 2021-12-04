@@ -1,11 +1,17 @@
-#=
-PlayerRandom
+"""
+# module PlayerMonteCarlo
+
 - Julia version: 1.6.4
 - Author: ravontuur
-- Date: 2021-11-26
-=#
+- Date: 2021-12-04
 
-module PlayerRandom
+# Examples
+
+```jldoctest
+julia>
+```
+"""
+module PlayerMonteCarlo
 
     using ConnectFour.ConnectFourEnvironment
 
@@ -40,4 +46,6 @@ module PlayerRandom
         return move(env, action), action
 
     end
+
+
 end

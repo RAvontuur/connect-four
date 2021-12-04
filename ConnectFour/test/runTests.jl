@@ -11,4 +11,5 @@ module ConnectFourTests
     include("test_environment.jl")
     include("test_player_random.jl")
     include("test_mcts.jl")
+    include("test_play_master.jl")
 end

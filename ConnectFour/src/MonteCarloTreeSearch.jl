@@ -85,7 +85,7 @@ module MonteCarloTreeSearch
             if is_fully_expanded(current_node) == false
                 # expand
                 next_state = create_copy(current_node.state)
-                next_state, action = play(player, next_state, current_node.untried_actions)
+                next_state, action = player.play_func(player, next_state, current_node.untried_actions)
                 filter!(e->e!=action, current_node.untried_actions)
 
                 child_node = create_node(next_state, current_node, action, 0.0)
@@ -123,7 +123,7 @@ module MonteCarloTreeSearch
         current_rollout_state = create_copy(node.state)
         println(current_rollout_state)
         while current_rollout_state.terminated == false
-            current_rollout_state, action = play(player, current_rollout_state)
+            current_rollout_state, action = player.play_func(player, current_rollout_state)
             println(current_rollout_state)
         end
         return game_result(current_rollout_state, next_to_move)

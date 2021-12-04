@@ -18,7 +18,7 @@ module PlayerRandomTests
         @assert env.player == cur_player
         @assert env.reward == 0
         @assert env.move_count == move_count
-        global env, action = play(player, env, missing)
+        global env, action = player.play_func(player, env, missing)
         global move_count = move_count + 1
         global cur_player = -cur_player
         println("action: ", action)
