@@ -55,12 +55,11 @@ module MonteCarloTreeSearch
 
     function best_child(root_node::Node, player::Player, number_of_rollouts::Int64)
         for i in 1:number_of_rollouts
-            println("rollout: ", i)
             node = tree_policy(root_node, player)
             while ismissing(node.analyzed_result) == false
                 # increase visits without rollouts
-                node.backpropagate(node.analyzed_result)
-                if isMissing(root_node.analyzed_result) == false
+                backpropagate(node, node.analyzed_result)
+                if ismissing(root_node.analyzed_result) == false
                     break
                 end
                 node = tree_policy(root_node, player)
@@ -79,7 +78,6 @@ module MonteCarloTreeSearch
     end
 #
     function tree_policy(root_node::Node, player::Player)
-        println("tree policy:", root_node)
         current_node = root_node
         while ismissing(current_node.analyzed_result) == true
             if is_fully_expanded(current_node) == false
@@ -90,7 +88,6 @@ module MonteCarloTreeSearch
 
                 child_node = create_node(next_state, current_node, action, 0.0)
                 push!(current_node.children, child_node)
-                println("current node:", current_node)
 
                 if ismissing(child_node.analyzed_result) == false && child_node.analyzed_result <= 0
                         # opponent loses or play ended in a draw
@@ -100,7 +97,6 @@ module MonteCarloTreeSearch
                 end
                 return child_node
             else
-                println("fully expanded")
                 best_child_node = best_child(current_node)
                 if ismissing(best_child_node.analyzed_result) == false && best_child_node.analyzed_result == -1
                     # it is sure that the opponent will lose
@@ -121,10 +117,8 @@ module MonteCarloTreeSearch
     function rollout(player::Player, node::Node)
         next_to_move = node.state.player
         current_rollout_state = create_copy(node.state)
-        println(current_rollout_state)
         while current_rollout_state.terminated == false
             current_rollout_state, action = player.play_func(player, current_rollout_state)
-            println(current_rollout_state)
         end
         return game_result(current_rollout_state, next_to_move)
     end
@@ -153,7 +147,6 @@ module MonteCarloTreeSearch
     function best_child(node::Node, c_param::Float64 = 1.4)
         @assert length(node.children) > 0
         weights = choices_weights(node, c_param)
-        println("choices_weights: ", weights)
         return node.children[argmax(weights)]
     end
 

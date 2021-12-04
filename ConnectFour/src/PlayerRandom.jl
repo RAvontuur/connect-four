@@ -35,7 +35,6 @@ module PlayerRandom
         end
 
         shuffle!(free_columns)
-        println("actions: ", free_columns)
         action = free_columns[1]
         return move(env, action), action
 

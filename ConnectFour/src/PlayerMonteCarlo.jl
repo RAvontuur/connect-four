@@ -14,6 +14,8 @@ julia>
 module PlayerMonteCarlo
 
     using ConnectFour.ConnectFourEnvironment
+    using ConnectFour.MonteCarloTreeSearch
+    using ConnectFour.PlayerRandom
 
     using Random
 
@@ -24,28 +26,21 @@ module PlayerMonteCarlo
 
     mutable struct Player
         name
+        number_of_simulations
         play_func
     end
 
-    function create_player(name)
-        return Player(name, play)
+    function create_player(name, number_of_simulations)
+        return Player(name, number_of_simulations, play)
     end
 
     function play(self::Player, env::Environment, untried_actions::OptionalActions = missing)
         @assert env.terminated == false
 
-        if ismissing(untried_actions) == true
-            free_columns = get_legal_actions(env)
-        else
-            free_columns = untried_actions
-        end
-
-        shuffle!(free_columns)
-        println("actions: ", free_columns)
-        action = free_columns[1]
+        root_node = create_node(env, missing, missing, 0.0)
+        rollout_player = PlayerRandom.create_player("rollout-player")
+        result = best_child(root_node, rollout_player, self.number_of_simulations)
+        action = result.state.last_action
         return move(env, action), action
-
     end
-
-
 end
