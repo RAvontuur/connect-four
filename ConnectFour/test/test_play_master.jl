@@ -41,9 +41,6 @@ module test_play_master
             else
                 env, action = player2.play_func(player2, env, missing)
             end
-            if (env.terminated)
-
-            end
             move_count = move_count + 1
             cur_player = -cur_player
             if print_level == 2; println(display_board(env)) end

@@ -34,7 +34,7 @@ module MonteCarloTreeSearch
         untried_actions = get_legal_actions(state)
         shuffle!(untried_actions)
 
-        if ismissing(state) == false && state.terminated == true
+        if state.terminated == true
             analyzed_result = state.reward
         else
             analyzed_result = missing
@@ -79,39 +79,43 @@ module MonteCarloTreeSearch
 #
     function tree_policy(root_node::Node, player::Player)
         current_node = root_node
-        while ismissing(current_node.analyzed_result) == true
-            if is_fully_expanded(current_node) == false
-                # expand
-                next_state = create_copy(current_node.state)
-                next_state, action = player.play_func(player, next_state, current_node.untried_actions)
-                filter!(e->e!=action, current_node.untried_actions)
-
-                child_node = create_node(next_state, current_node, action, 0.0)
-                push!(current_node.children, child_node)
-
-                if ismissing(child_node.analyzed_result) == false && child_node.analyzed_result <= 0
-                        # opponent loses or play ended in a draw
-                        current_node.untried_actions = []
-                        current_node.analyzed_result = -child_node.analyzed_result
-                        current_node.children = [child_node]
-                end
-                return child_node
-            else
-                best_child_node = best_child(current_node)
-                if ismissing(best_child_node.analyzed_result) == false && best_child_node.analyzed_result == -1
-                    # it is sure that the opponent will lose
-                    # no reason to look further
-                    current_node.analyzed_result = 1
-                elseif all_analyzed(current_node)
-                    # it will not be better then this
-                    current_node.analyzed_result = -best_child_node.analyzed_result
-                else
-                    # continue exploring the best move (= the best child)
-                    current_node = best_child_node
-                end
-            end
+        while shouldContinueExploring(current_node, player)
+            # continue exploring the best move (= the best child)
+            # go deeper
+            current_node = best_child(current_node)
         end
-        return current_node
+
+        if ismissing(current_node.analyzed_result) == false
+            # no new child nodes to explore
+            return current_node
+        end
+
+        return last_child(current_node)
+    end
+
+    function shouldContinueExploring(current_node::Node, player::Player)
+        if any_child_losing(current_node)
+            return false
+        end
+        if is_fully_expanded(current_node) == false
+            new_child_node(current_node, player)
+            return false
+        end
+        if all_childs_winning(current_node)
+            return false
+        end
+
+        return true
+    end
+
+    function new_child_node(current_node::Node, player::Player)
+        # expand
+        next_state = create_copy(current_node.state)
+        next_state, action = player.play_func(player, next_state, current_node.untried_actions)
+        filter!(e->e!=action, current_node.untried_actions)
+
+        child_node = create_node(next_state, current_node, action, 0.0)
+        push!(current_node.children, child_node)
     end
 
     function rollout(player::Player, node::Node)
@@ -135,13 +139,32 @@ module MonteCarloTreeSearch
         return length(node.untried_actions) == 0
     end
 
-    function all_analyzed(node::Node)
+    function all_childs_winning(node::Node)
         for c in node.children
-            if ismissing(c.analyzed_result)
+            if ismissing(c.analyzed_result) || c.analyzed_result != 1
+                # at least one of the childs has no analyzed result or any other result than winning
                 return false
             end
         end
+        # the player of the node loses always (if opponent knows how)
+        node.analyzed_result = -1
         return true
+    end
+
+    function any_child_losing(node::Node)
+        for c in node.children
+            if ismissing(c.analyzed_result) == false && c.analyzed_result == -1
+                # the player of the node knows what to play in order to win
+                node.analyzed_result = 1
+                return true
+            end
+        end
+        return false
+    end
+
+    function last_child(node::Node)
+       @assert length(node.children) > 0
+       return node.children[length(node.children)]
     end
 
     function best_child(node::Node, c_param::Float64 = 1.4)
