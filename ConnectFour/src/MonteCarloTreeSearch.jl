@@ -21,7 +21,7 @@ module MonteCarloTreeSearch
         state::Environment
         action::Union{Int8, Missing}
         action_value::Float32
-        results::Dict
+        result::Float64
         number_of_visits::Int32
         untried_actions::Array{Int8}
         analyzed_result::Union{Int8, Missing}
@@ -46,7 +46,7 @@ module MonteCarloTreeSearch
             state,
             action,
             action_value,
-            Dict(-1 => 0, 0 => 0, 1 => 0),
+            0.0,
             0,
             untried_actions,
             analyzed_result
@@ -58,7 +58,7 @@ module MonteCarloTreeSearch
             node = tree_policy(root_node, player)
             while ismissing(node.analyzed_result) == false
                 # increase visits without rollouts
-                backpropagate(node, node.analyzed_result)
+                backpropagate(node, convert(Float64, node.analyzed_result))
                 if ismissing(root_node.analyzed_result) == false
                     break
                 end
@@ -71,7 +71,7 @@ module MonteCarloTreeSearch
             end
 
             result = rollout(player, node)
-            backpropagate(node, result)
+            backpropagate(node, convert(Float64, result))
         end
         # retrieve result: exploitation only
         return best_child(root_node, 0.0)
@@ -127,9 +127,9 @@ module MonteCarloTreeSearch
         return game_result(current_rollout_state, next_to_move)
     end
 
-    function backpropagate(node::Node, result::Int8)
+    function backpropagate(node::Node, result::Float64)
         node.number_of_visits += 1
-        node.results[result] += 1
+        node.result += result
         if ismissing(node.parent) == false
             backpropagate(node.parent, -result)
         end
@@ -176,23 +176,8 @@ module MonteCarloTreeSearch
     function choices_weights(node::Node, c_param)
         # the children have the result from opponents viewpoint
         return [
-            (-q(c) / c.number_of_visits) + c_param * sqrt((2 * log(node.number_of_visits) / c.number_of_visits))
+            (-c.result / c.number_of_visits) + c_param * sqrt((2 * log(node.number_of_visits) / c.number_of_visits))
             for c in node.children
         ]
     end
-
-    function q(node::Node)
-        wins = node.results[1]
-        loses = node.results[-1]
-        return wins - loses
-    end
-
-    #     function v(node::Node)
-#         wins = node.results[1]
-#         loses = node.results[-1]
-#         draws = node.results[0]
-#         n = wins + loses + draws
-#         return  (wins - loses) / n
-#     end
-
 end
