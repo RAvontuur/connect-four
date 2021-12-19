@@ -26,8 +26,8 @@ module test_play_master
 
     function play_game(result::GameResult, print_level)
 #         player1 = PlayerRandom.create_player("player-1")
-        player1 = PlayerMonteCarlo.create_player("player-1", 10)
-        player2 = PlayerMonteCarlo.create_player("player-2", 100)
+        player1 = PlayerMonteCarlo.create_player("player-1", 100000)
+        player2 = PlayerMonteCarlo.create_player("player-2", 100000)
 
         env = create_env()
         move_count = 0

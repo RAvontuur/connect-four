@@ -39,7 +39,7 @@ module PlayerMonteCarlo
 
         root_node = create_node(env, missing, missing, 0.0)
         rollout_player = PlayerRandom.create_player("rollout-player")
-        result = best_child(root_node, rollout_player, self.number_of_simulations)
+        result = tree_search(root_node, rollout_player, self.number_of_simulations)
         action = result.state.last_action
         return move(env, action), action
     end

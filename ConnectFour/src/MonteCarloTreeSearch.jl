@@ -13,7 +13,7 @@ module MonteCarloTreeSearch
     using Random
 
     export Node
-    export create_node, best_child
+    export create_node, tree_search
 
     mutable struct Node
         parent::Union{Node, Missing}
@@ -53,16 +53,16 @@ module MonteCarloTreeSearch
         )
     end
 
-    function best_child(root_node::Node, player::Player, number_of_rollouts::Int64)
+    function tree_search(root_node::Node, player::Player, number_of_rollouts::Int64)
         for i in 1:number_of_rollouts
-            node = tree_policy(root_node, player)
+            node = tree_policy(root_node)
             while ismissing(node.analyzed_result) == false
                 # increase visits without rollouts
                 backpropagate(node, convert(Float64, node.analyzed_result))
                 if ismissing(root_node.analyzed_result) == false
                     break
                 end
-                node = tree_policy(root_node, player)
+                node = tree_policy(root_node)
             end
 
             if ismissing(root_node.analyzed_result) == false
@@ -70,6 +70,7 @@ module MonteCarloTreeSearch
                 break
             end
 
+            node = new_child_node(node, player)
             result = rollout(player, node)
             backpropagate(node, convert(Float64, result))
         end
@@ -77,28 +78,21 @@ module MonteCarloTreeSearch
         return best_child(root_node, 0.0)
     end
 #
-    function tree_policy(root_node::Node, player::Player)
+    function tree_policy(root_node::Node)
         current_node = root_node
-        while shouldContinueExploring(current_node, player)
+        while shouldContinueExploring(current_node)
             # continue exploring the best move (= the best child)
             # go deeper
             current_node = best_child(current_node)
         end
-
-        if ismissing(current_node.analyzed_result) == false
-            # no new child nodes to explore
-            return current_node
-        end
-
-        return last_child(current_node)
+        return current_node
     end
 
-    function shouldContinueExploring(current_node::Node, player::Player)
+    function shouldContinueExploring(current_node::Node)
         if any_child_losing(current_node)
             return false
         end
         if is_fully_expanded(current_node) == false
-            new_child_node(current_node, player)
             return false
         end
         if all_childs_winning(current_node)
@@ -116,6 +110,7 @@ module MonteCarloTreeSearch
 
         child_node = create_node(next_state, current_node, action, 0.0)
         push!(current_node.children, child_node)
+        return child_node
     end
 
     function rollout(player::Player, node::Node)
@@ -162,11 +157,6 @@ module MonteCarloTreeSearch
         return false
     end
 
-    function last_child(node::Node)
-       @assert length(node.children) > 0
-       return node.children[length(node.children)]
-    end
-
     function best_child(node::Node, c_param::Float64 = 1.4)
         @assert length(node.children) > 0
         weights = choices_weights(node, c_param)
@@ -176,8 +166,15 @@ module MonteCarloTreeSearch
     function choices_weights(node::Node, c_param)
         # the children have the result from opponents viewpoint
         return [
-            (-c.result / c.number_of_visits) + c_param * sqrt((2 * log(node.number_of_visits) / c.number_of_visits))
+            child_weight(c, node.number_of_visits, c_param)
             for c in node.children
         ]
+    end
+
+    function child_weight(child::Node, parent_visits::Int32, c_param)
+        if child.number_of_visits == 0
+            return -child.result +  c_param * sqrt(2 * log(parent_visits))
+        end
+        return -child.result / child.number_of_visits + c_param * sqrt(2 * log(parent_visits) / child.number_of_visits)
     end
 end
