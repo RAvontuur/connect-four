@@ -5,7 +5,7 @@ MonteCarloTreeSearch:
 - Date: 2021-11-25
 =#
 
-module MonteCarloTreeSearch
+module MonteCarloTreeSearchRef
 
     using ConnectFour.ConnectFourEnvironment
     using ConnectFour.PlayerRandom
@@ -104,21 +104,12 @@ module MonteCarloTreeSearch
 
     function new_child_node(current_node::Node, player::Player)
         # expand
-        child_node = missing
-        while length(current_node.untried_actions) > 0
-            next_state = create_copy(current_node.state)
-            next_state, action = player.play_func(player, next_state, current_node.untried_actions)
-            filter!(e->e!=action, current_node.untried_actions)
+        next_state = create_copy(current_node.state)
+        next_state, action = player.play_func(player, next_state, current_node.untried_actions)
+        filter!(e->e!=action, current_node.untried_actions)
 
-            child_node = create_node(next_state, current_node, action, 0.0)
-            push!(current_node.children, child_node)
-            if ismissing(child_node.analyzed_result) == false && child_node.analyzed_result == -1
-                # the player of the node knows what to play in order to win
-                current_node.analyzed_result = 1
-                current_node.children = [child_node]
-                return child_node
-            end
-        end
+        child_node = create_node(next_state, current_node, action, 0.0)
+        push!(current_node.children, child_node)
         return child_node
     end
 
