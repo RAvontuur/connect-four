@@ -20,7 +20,6 @@ module MonteCarloTreeSearch
         children::Array{Node}
         state::Environment
         action::Union{Int8, Missing}
-        action_value::Float32
         result::Float64
         number_of_visits::Int32
         untried_actions::Array{Int8}
@@ -29,7 +28,7 @@ module MonteCarloTreeSearch
 
     OptionalNode = Union{Node, Missing}
 
-    function create_node(state::Environment, parent::OptionalNode, action, action_value)
+    function create_node(state::Environment, parent::OptionalNode, action)
 
         untried_actions = get_legal_actions(state)
         shuffle!(untried_actions)
@@ -45,7 +44,6 @@ module MonteCarloTreeSearch
             Node[],
             state,
             action,
-            action_value,
             0.0,
             0,
             untried_actions,
@@ -71,6 +69,11 @@ module MonteCarloTreeSearch
             end
 
             node = new_child_node(node, player)
+            if node.number_of_visits == 0
+                predict(node.parent)
+                node = tree_policy(root_node)
+            end
+
             result = rollout(player, node)
             backpropagate(node, convert(Float64, result))
         end
@@ -110,7 +113,7 @@ module MonteCarloTreeSearch
             next_state, action = player.play_func(player, next_state, current_node.untried_actions)
             filter!(e->e!=action, current_node.untried_actions)
 
-            child_node = create_node(next_state, current_node, action, 0.0)
+            child_node = create_node(next_state, current_node, action)
             push!(current_node.children, child_node)
             if ismissing(child_node.analyzed_result) == false && child_node.analyzed_result == -1
                 # the player of the node knows what to play in order to win
@@ -122,8 +125,20 @@ module MonteCarloTreeSearch
         return child_node
     end
 
+    function predict(parent_node::Node)
+        for c in parent_node.children
+            backpropagate(c, 0.0)
+            # dummy model
+            # if c.action
+        end
+    end
+
     function rollout(player::Player, node::Node)
         next_to_move = node.state.player
+        if node.state.terminated == true
+            return game_result(node.state, next_to_move)
+        end
+
         current_rollout_state = create_copy(node.state)
         while current_rollout_state.terminated == false
             current_rollout_state, action = player.play_func(player, current_rollout_state)

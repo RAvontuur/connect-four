@@ -37,7 +37,7 @@ module PlayerMonteCarlo
     function play(self::Player, env::Environment, untried_actions::OptionalActions = missing)
         @assert env.terminated == false
 
-        root_node = create_node(env, missing, missing, 0.0)
+        root_node = create_node(env, missing, missing)
         rollout_player = PlayerRandom.create_player("rollout-player")
         result = tree_search(root_node, rollout_player, self.number_of_simulations)
         action = result.state.last_action

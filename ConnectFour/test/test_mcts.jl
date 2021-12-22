@@ -15,7 +15,7 @@ module MonteCarloTreeSearchTests
     println("Start MonteCarloTreeSearchTests")
     state = create_env()
     player = create_player("rollout-player")
-    root_node = create_node(state, missing, missing, 0.0)
+    root_node = create_node(state, missing, missing)
 
     result = tree_search(root_node, player, 10)
     println("best move: ",  result.state.last_action)
